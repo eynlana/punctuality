@@ -4,6 +4,12 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#5865F2">
+<link rel="icon" type="image/png" sizes="512x512" href="icon.png">
+<link rel="apple-touch-icon" href="icon.png">
+<link rel="manifest" href="manifest.json">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Punctuality">
 <title>Punctuality</title>
 <style>
 *{box-sizing:border-box}
@@ -11,17 +17,26 @@ body{margin:0;font-family:system-ui,-apple-system,Segoe UI,sans-serif;background
 main{max-width:680px;margin:auto;padding:20px 16px 40px}
 .top{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
 h1{font-size:25px;margin:0}.sub{color:#737b8c;font-size:13px;margin-top:3px}
-button{border:0;border-radius:12px;padding:11px 14px;font-weight:800;cursor:pointer;transition:.15s transform,.15s opacity}
+button{border:0;border-radius:12px;padding:11px 14px;font-weight:800;cursor:pointer;transition:transform .12s ease,opacity .12s ease;-webkit-tap-highlight-color:transparent}
 button:active{transform:scale(.98);opacity:.9}
-.primary{background:linear-gradient(135deg,#6d5dfc,#4d8dff);color:white;box-shadow:0 6px 16px rgba(77,141,255,.22)}
+.primary{background:linear-gradient(135deg,#6070f6,#3f9eea);color:white;box-shadow:0 4px 10px rgba(63,158,234,.18)}
 .secondary{background:#edf0ff;color:#3949ab}
+.icon-btn{width:44px;height:44px;padding:0;border-radius:14px;font-size:25px;line-height:1;background:#edf0ff;color:#3949ab;box-shadow:0 3px 9px rgba(53,70,184,.08)}
+.top-actions{display:flex;gap:8px;align-items:center}
+.modal{position:fixed;inset:0;background:rgba(23,32,51,.16);display:none;align-items:flex-start;justify-content:center;padding:12px;padding-top:max(12px,env(safe-area-inset-top));z-index:50;overflow:auto;-webkit-overflow-scrolling:touch}
+.modal.open{display:flex}
+.modal-card{width:min(680px,100%);max-height:calc(100dvh - 24px);overflow:auto;background:#fff;border:1px solid #e7e8f0;border-radius:22px;padding:18px;box-shadow:0 14px 34px rgba(20,30,60,.16);overscroll-behavior:contain;margin:0 auto}
+.modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.modal-title{font-size:20px;font-weight:900;color:#172033}
+.close-btn{width:40px;height:40px;padding:0;border-radius:12px;background:#f1f3f8;color:#697386;font-size:22px}
+
 .checkout{background:#e9fff4;color:#138a55}
 .danger{background:#fff0f0;color:#c33131}
 .tabbar{display:flex;gap:8px;background:rgba(255,255,255,.72);padding:5px;border:1px solid #e2e6f0;border-radius:14px;margin-bottom:14px}
 .tab{flex:1;background:transparent;color:#677085;padding:10px}
 .tab.active{background:#fff;color:#3546b8;box-shadow:0 4px 12px rgba(53,70,184,.10)}
 .page{display:none}.page.active{display:block}
-.card{background:rgba(255,255,255,.94);border:1px solid #e7e8f0;border-radius:16px;padding:16px;margin-bottom:12px;box-shadow:0 8px 24px rgba(53,67,122,.06)}
+.card{background:rgba(255,255,255,.96);border:1px solid #e7e8f0;border-radius:16px;padding:16px;margin-bottom:12px;box-shadow:0 5px 15px rgba(53,67,122,.045)}
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .stat b{display:block;font-size:24px;color:#3546b8}.stat span{font-size:12px;color:#697386}
 .stat.neutral{border-top:4px solid #667eea}
@@ -40,7 +55,7 @@ label{font-size:12px;font-weight:800;color:#4b5563}
 input,textarea{width:100%;padding:11px;border:1px solid #ccd3e2;border-radius:10px;font-size:16px;background:#fbfcff;color:#172033;font-family:inherit}
 textarea{min-height:82px;resize:vertical;font-size:14px}
 input:focus,textarea:focus{outline:2px solid #b9c8ff;border-color:#7c90ff}
-.section-title{font-size:14px;font-weight:800;margin:18px 0 9px}
+.section-title{font-size:14px;font-weight:800;margin:18px 0 9px}.agenda-head{display:flex;justify-content:space-between;align-items:center;gap:8px}.agenda-tools{display:flex;align-items:center;gap:6px;min-width:0}.add-agenda-btn{background:linear-gradient(135deg,#6070f6,#3f9eea);color:#fff;border:1px solid #5572e9;border-radius:12px;padding:8px 11px;font-size:13px;font-weight:800;white-space:nowrap;box-shadow:0 3px 9px rgba(63,158,234,.16)}
 .event{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
 .event h3{margin:0 0 4px;font-size:16px}
 .event-card{padding:0;overflow:hidden;cursor:pointer}
@@ -72,7 +87,7 @@ select:focus{outline:2px solid #b9c8ff;border-color:#7c90ff}
 .late{color:#dc2626}.ontime{color:#15803d}.pending{color:#a16207}.checkedout{color:#0f7b4c}
 .actions{display:flex;gap:7px;flex-wrap:wrap;justify-content:flex-end}
 .small{padding:8px 10px;font-size:12px}
-.empty{text-align:center;color:#737373;padding:22px 5px}
+.empty{text-align:center;color:#737373;padding:22px 5px;background:rgba(255,255,255,.90)}
 .big-delay{font-size:24px!important;line-height:1.05}
 .big-delay-sub{display:block;font-size:12px;color:#7a8496;font-weight:700;margin-top:5px}
 .chart-title{font-size:14px;font-weight:800;margin:0 0 12px}
@@ -100,16 +115,16 @@ select:focus{outline:2px solid #b9c8ff;border-color:#7c90ff}
 .heatmap-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px}
 .heatmap-title{font-size:14px;font-weight:800}
 .heatmap-period{font-size:12px;color:#7a8496}
-.heatmap-wrap{overflow-x:auto;padding-bottom:4px}
+.heatmap-wrap{overflow-x:auto;padding-bottom:4px;contain:content}
 .heatmap-grid{min-width:330px}
 .heatmap-weekdays{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-bottom:6px}
 .heatmap-weekday{text-align:center;font-size:10px;color:#8a93a4;font-weight:800}
 .heatmap-cells{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
 .heat-cell{
   aspect-ratio:1/1;border-radius:6px;min-height:28px;position:relative;
-  border:1px solid rgba(0,0,0,.04);cursor:default;transition:transform .12s,box-shadow .12s;
+  border:1px solid rgba(0,0,0,.04);cursor:default;
 }
-.heat-cell:hover{transform:scale(1.06);box-shadow:0 4px 10px rgba(50,70,110,.12);z-index:2}
+.heat-cell:hover{transform:scale(1.04);box-shadow:0 3px 8px rgba(50,70,110,.10);z-index:2}
 .heat-empty{background:#f1f3f7}
 .heat-pending{background:#e9e7ff}
 .heat-green-1{background:#d9f7e5}
@@ -133,14 +148,21 @@ select:focus{outline:2px solid #b9c8ff;border-color:#7c90ff}
 
 
 .heat-cell{background:#f1f3f7!important}
+.sort-select{border:1px solid #dfe3ec;background:#f4f6f9;color:#4b5567;border-radius:12px;padding:8px 9px;font-size:12px;font-weight:800;max-width:138px;outline:none;box-shadow:none}.add-agenda-btn{flex:none}
+@media(max-width:520px){.agenda-head{align-items:flex-start}.agenda-tools{flex:1;justify-content:flex-end}.sort-select{max-width:128px}.add-agenda-btn{padding:8px 10px}.top{margin-bottom:12px}.card{padding:14px}}
+@media(max-width:390px){.sort-select{max-width:112px}.add-agenda-btn{font-size:12px;padding:8px}.agenda-tools{gap:5px}}
 
+
+@media(max-height:700px){.modal{padding-top:8px;padding-bottom:8px}.modal-card{max-height:calc(100dvh - 16px);padding:16px}}
 </style>
 </head>
 <body>
 <main>
   <div class="top">
     <div><h1>⏱ Punctuality</h1><div class="sub">Catat apakah kamu tepat waktu.</div></div>
-    <button class="secondary" onclick="showSettings()">⚙️</button>
+    <div class="top-actions">
+      <button class="secondary icon-btn" aria-label="Pengaturan" onclick="showSettings()">⚙️</button>
+    </div>
   </div>
 
   <div class="tabbar">
@@ -149,8 +171,27 @@ select:focus{outline:2px solid #b9c8ff;border-color:#7c90ff}
   </div>
 
   <section id="homePage" class="page active">
-    <div class="card">
-      <div class="section-title" style="margin-top:0">+ Agenda baru</div>
+    <div class="agenda-head">
+      <div class="section-title">Agenda</div>
+      <div class="agenda-tools">
+        <select id="agendaSort" class="sort-select" aria-label="Urutkan agenda" onchange="setAgendaSort(this.value)">
+          <option value="createdDesc">↕ Dibuat terbaru</option>
+          <option value="targetAsc">↕ Agenda terdekat</option>
+          <option value="targetDesc">↕ Agenda terbaru</option>
+          <option value="createdAsc">↕ Dibuat terlama</option>
+        </select>
+        <button class="add-agenda-btn" type="button" onclick="openAgendaModal()">＋ Buat agenda</button>
+      </div>
+    </div>
+    <div id="events"></div>
+  </section>
+
+  <div id="agendaModal" class="modal" onclick="if(event.target===this) closeAgendaModal()">
+    <div class="modal-card">
+      <div class="modal-head">
+        <div class="modal-title">＋ Agenda baru</div>
+        <button type="button" class="close-btn" aria-label="Tutup" onclick="closeAgendaModal()">×</button>
+      </div>
       <form id="eventForm">
         <div>
           <label for="name">Nama acara</label>
@@ -173,13 +214,10 @@ select:focus{outline:2px solid #b9c8ff;border-color:#7c90ff}
           <label for="description">Description <span style="font-weight:600;color:#8a93a4">(opsional)</span></label>
           <textarea id="description" placeholder="Contoh: belajar TA, ketemu teman, rapat, dll."></textarea>
         </div>
-        <button class="primary" type="submit">Tambah agenda</button>
+        <button class="primary" type="submit" style="width:100%">Tambah agenda</button>
       </form>
     </div>
-
-    <div class="section-title">Agenda</div>
-    <div id="events"></div>
-  </section>
+  </div>
 
   <section id="chartPage" class="page">
     <div class="grid">
@@ -283,7 +321,10 @@ function syncLocations(){
 }
 syncLocations();
 
-function save(){localStorage.setItem(KEY,JSON.stringify(data));render()}
+function save(){
+  localStorage.setItem(KEY,JSON.stringify(data));
+  render();
+}
 function fmtTime(s){return new Date(s).toLocaleString('id-ID',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'})}
 function mins(n){return Math.abs(Math.round(n))+' menit'}
 function hourText(n){
@@ -343,7 +384,6 @@ function addEvent(e){
     actual:null,
     checkout:null
   });
-  data.sort((a,b)=>new Date(b.target)-new Date(a.target));
   nameInput.value='';targetInput.value='';locationInput.value='';descriptionInput.value='';
   save();
 }
@@ -388,9 +428,24 @@ function punctualityState(pct, hasCompleted){
   if(pct>=40) return 'orange';
   return 'bad';
 }
+let agendaSort='createdDesc';
+function setAgendaSort(value){
+  agendaSort=value||'createdDesc';
+  render();
+}
+function sortedAgenda(list){
+  return [...list].sort((a,b)=>{
+    if(agendaSort==='targetDesc') return new Date(b.target)-new Date(a.target);
+    if(agendaSort==='createdAsc') return Number(a.id)-Number(b.id);
+    if(agendaSort==='createdDesc') return Number(b.id)-Number(a.id);
+    return new Date(a.target)-new Date(b.target);
+  });
+}
 function render(){
   const now=new Date();
-  const agendaData=[...data].sort((a,b)=>new Date(b.target)-new Date(a.target));
+  const agendaData=sortedAgenda(data);
+  const sortEl=document.getElementById('agendaSort');
+  if(sortEl) sortEl.value=agendaSort;
   const completed=data.filter(x=>x.actual);
   const lateItems=data.map(x=>{
     if(!x.actual)return null;
@@ -477,8 +532,7 @@ function render(){
       </div>`;
     }).join('');
   }
-  renderChartsForFilter();
-renderLocationStats();
+  if(document.getElementById('chartPage')?.classList.contains('active')) refreshCharts();
 }
 function startOfDay(d){
   return new Date(d.getFullYear(),d.getMonth(),d.getDate());
@@ -516,6 +570,11 @@ function getChartFilteredData(){
     return t>=start && t<end;
   });
 }
+function refreshCharts(){
+  renderChartsForFilter();
+  renderHeatmap();
+  renderLocationStats();
+}
 function setChartFilter(filter){
   chartFilter=filter;
   document.getElementById('filterDay').classList.toggle('active',filter==='day');
@@ -525,8 +584,7 @@ function setChartFilter(filter){
     filter==='day'?'Menampilkan statistik hari ini.':
     filter==='week'?'Menampilkan statistik minggu ini.':
     'Menampilkan statistik bulan ini.';
-  renderChartsForFilter();
-  renderHeatmap();
+  refreshCharts();
 }
 
 function dateKey(d){
@@ -750,10 +808,12 @@ function renderCharts(completedCount,punctualCount,lateCount,pendingCount,earlyC
 }
 
 function showPage(page){
-  document.getElementById('homePage').classList.toggle('active',page==='home');
-  document.getElementById('chartPage').classList.toggle('active',page==='chart');
-  document.getElementById('tabHome').classList.toggle('active',page==='home');
-  document.getElementById('tabChart').classList.toggle('active',page==='chart');
+  const chartActive=page==='chart';
+  document.getElementById('homePage').classList.toggle('active',!chartActive);
+  document.getElementById('chartPage').classList.toggle('active',chartActive);
+  document.getElementById('tabHome').classList.toggle('active',!chartActive);
+  document.getElementById('tabChart').classList.toggle('active',chartActive);
+  if(chartActive) refreshCharts();
 }
 function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]))}
 function showSettings(){
@@ -770,10 +830,19 @@ function showSettings(){
     };inp.click();
   }else if(choice.toUpperCase()==='CLEAR'&&confirm('Hapus SEMUA data?')){data=[];save()}
 }
-document.getElementById('eventForm').addEventListener('submit',addEvent);
+function openAgendaModal(){
+  const modal=document.getElementById('agendaModal');
+  modal.classList.add('open');
+  document.body.style.overflow='hidden';
+  setTimeout(()=>document.getElementById('name').focus(),60);
+}
+function closeAgendaModal(){
+  document.getElementById('agendaModal').classList.remove('open');
+  document.body.style.overflow='';
+}
+document.getElementById('eventForm').addEventListener('submit',(e)=>{addEvent(e); setTimeout(closeAgendaModal,0);});
 renderLocationOptions();
 render();
-renderHeatmap();
 </script>
 </body>
 </html>
