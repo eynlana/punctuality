@@ -1,0 +1,779 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#5865F2">
+<link rel="icon" type="image/png" sizes="512x512" href="icon.png">
+<link rel="apple-touch-icon" href="icon.png">
+<link rel="manifest" href="manifest.json">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Punctuality">
+<title>Punctuality</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:system-ui,-apple-system,Segoe UI,sans-serif;background:linear-gradient(135deg,#f5f3ff 0%,#eef8ff 48%,#f7fff7 100%);color:#172033;min-height:100vh}
+main{max-width:680px;margin:auto;padding:20px 16px 40px}
+.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+h1{font-size:25px;margin:0}.sub{color:#737b8c;font-size:13px;margin-top:3px}
+button{border:0;border-radius:12px;padding:11px 14px;font-weight:800;cursor:pointer;transition:transform .12s ease,opacity .12s ease;-webkit-tap-highlight-color:transparent}
+button:active{transform:scale(.98);opacity:.9}
+.primary{background:linear-gradient(135deg,#6070f6,#3f9eea);color:white;box-shadow:0 4px 10px rgba(63,158,234,.18)}
+.secondary{background:#edf0ff;color:#3949ab}
+.icon-btn{width:44px;height:44px;padding:0;border-radius:14px;font-size:25px;line-height:1;background:#edf0ff;color:#3949ab;box-shadow:0 3px 9px rgba(53,70,184,.08)}
+.top-actions{display:flex;gap:8px;align-items:center}
+.modal{position:fixed;inset:0;background:rgba(23,32,51,.16);display:none;align-items:flex-start;justify-content:center;padding:12px;padding-top:max(12px,env(safe-area-inset-top));z-index:50;overflow:auto;-webkit-overflow-scrolling:touch}
+.modal.open{display:flex}
+.modal-card{width:min(680px,100%);max-height:calc(100dvh - 24px);overflow:auto;background:#fff;border:1px solid #e7e8f0;border-radius:22px;padding:18px;box-shadow:0 14px 34px rgba(20,30,60,.16);overscroll-behavior:contain;margin:0 auto}
+.modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.modal-title{font-size:20px;font-weight:900;color:#172033}
+.close-btn{width:40px;height:40px;padding:0;border-radius:12px;background:#f1f3f8;color:#697386;font-size:22px}
+
+.checkout{background:#e9fff4;color:#138a55}
+.danger{background:#fff0f0;color:#c33131}
+.tabbar{display:flex;gap:8px;background:rgba(255,255,255,.72);padding:5px;border:1px solid #e2e6f0;border-radius:14px;margin-bottom:14px}
+.tab{flex:1;background:transparent;color:#677085;padding:10px}
+.tab.active{background:#fff;color:#3546b8;box-shadow:0 4px 12px rgba(53,70,184,.10)}
+.page{display:none}.page.active{display:block}
+.card{background:rgba(255,255,255,.96);border:1px solid #e7e8f0;border-radius:16px;padding:16px;margin-bottom:12px;box-shadow:0 5px 15px rgba(53,67,122,.045)}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.stat b{display:block;font-size:24px;color:#3546b8}.stat span{font-size:12px;color:#697386}
+.stat.neutral{border-top:4px solid #667eea}
+.stat.good{border-top:4px solid #22c55e;background:linear-gradient(180deg,#f5fff8,#fff)}
+.stat.good b{color:#15803d}
+.stat.warn{border-top:4px solid #f59e0b;background:linear-gradient(180deg,#fffbeb,#fff)}
+.stat.warn b{color:#b45309}
+.stat.orange{border-top:4px solid #f97316;background:linear-gradient(180deg,#fff7ed,#fff)}
+.stat.orange b{color:#c2410c}
+.stat.bad{border-top:4px solid #ef4444;background:linear-gradient(180deg,#fff5f5,#fff)}
+.stat.bad b{color:#c62828}
+.stat.severe{border-top:4px solid #b91c1c;background:linear-gradient(180deg,#fff0f0,#fff)}
+.stat.severe b{color:#991b1b}
+form{display:grid;gap:10px}
+label{font-size:12px;font-weight:800;color:#4b5563}
+input,textarea{width:100%;padding:11px;border:1px solid #ccd3e2;border-radius:10px;font-size:16px;background:#fbfcff;color:#172033;font-family:inherit}
+textarea{min-height:82px;resize:vertical;font-size:14px}
+input:focus,textarea:focus{outline:2px solid #b9c8ff;border-color:#7c90ff}
+.section-title{font-size:14px;font-weight:800;margin:18px 0 9px}.agenda-head{display:flex;justify-content:space-between;align-items:center;gap:8px}.agenda-tools{display:flex;align-items:center;gap:6px;min-width:0}.add-agenda-btn{background:linear-gradient(135deg,#6070f6,#3f9eea);color:#fff;border:1px solid #5572e9;border-radius:12px;padding:8px 11px;font-size:13px;font-weight:800;white-space:nowrap;box-shadow:0 3px 9px rgba(63,158,234,.16)}
+.event{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
+.event h3{margin:0 0 4px;font-size:16px}
+.event-card{padding:0;overflow:hidden;cursor:pointer}
+.event-summary{display:flex;justify-content:space-between;gap:12px;align-items:center;padding:16px}
+.event-summary-main{min-width:0;flex:1}
+.event-title-row{display:flex;gap:8px;align-items:center}
+.chevron{width:30px;height:30px;border-radius:10px;background:#f0f2ff;color:#5363c7;display:flex;align-items:center;justify-content:center;font-weight:900;transition:transform .15s}
+.event-card.open .chevron{transform:rotate(180deg)}
+.event-details{display:none;border-top:1px solid #edf0f5;padding:14px 16px 16px;background:#fbfcff}
+.event-card.open .event-details{display:block}
+.detail-row{font-size:13px;color:#596577;margin:5px 0}
+.detail-label{font-weight:800;color:#344054}
+
+.meta{font-size:13px;color:#737b8c}
+.desc{font-size:13px;color:#5d6675;margin-top:8px;white-space:pre-wrap;line-height:1.45}
+.location{display:flex;gap:6px;align-items:flex-start;font-size:13px;color:#4f5d75;margin-top:7px}
+.loc-row{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center}
+select{width:100%;padding:11px;border:1px solid #ccd3e2;border-radius:10px;font-size:16px;background:#fbfcff;color:#172033;font-family:inherit}
+select:focus{outline:2px solid #b9c8ff;border-color:#7c90ff}
+.loc-add{white-space:nowrap;padding:10px 12px}
+.location-stat{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;padding:10px 0;border-bottom:1px solid #edf0f5}
+.location-stat:last-child{border-bottom:0}
+.location-stat-name{font-weight:800;font-size:14px}
+.location-stat-meta{font-size:12px;color:#737b8c;margin-top:3px}
+.location-stat-time{text-align:right;font-weight:800;color:#3546b8}
+.location-stat-time small{display:block;color:#7a8496;font-weight:600;font-size:11px;margin-top:2px}
+.location-icon{flex:none}
+.status{font-size:12px;font-weight:800;margin-top:7px}
+.late{color:#dc2626}.ontime{color:#15803d}.pending{color:#a16207}.checkedout{color:#0f7b4c}
+.actions{display:flex;gap:7px;flex-wrap:wrap;justify-content:flex-end}
+.small{padding:8px 10px;font-size:12px}
+.empty{text-align:center;color:#737373;padding:22px 5px;background:rgba(255,255,255,.90)}
+.big-delay{font-size:24px!important;line-height:1.05}
+.big-delay-sub{display:block;font-size:12px;color:#7a8496;font-weight:700;margin-top:5px}
+.chart-title{font-size:14px;font-weight:800;margin:0 0 12px}
+.bar-row{display:grid;grid-template-columns:88px 1fr 42px;gap:8px;align-items:center;margin:10px 0}
+.bar-label{font-size:12px;color:#616b7c;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bar-wrap{height:12px;background:#edf0f7;border-radius:999px;overflow:hidden}
+.bar-fill{height:100%;background:linear-gradient(90deg,#6d5dfc,#4d8dff);border-radius:999px;min-width:2px}
+.bar-val{text-align:right;font-size:12px;font-weight:800;color:#4c5668}
+.chart-empty{color:#7b8493;font-size:13px;text-align:center;padding:18px}
+.legend{display:flex;gap:12px;flex-wrap:wrap;font-size:12px;color:#667085;margin-top:12px}
+.legend span{display:inline-flex;align-items:center;gap:5px}.dot{width:9px;height:9px;border-radius:50%;display:inline-block}
+.green{background:#22c55e}.red{background:#ef4444}.yellow{background:#f59e0b}
+.donut{width:150px;height:150px;border-radius:50%;margin:8px auto 14px;position:relative;background:conic-gradient(#22c55e 0 var(--ok,0%),#ef4444 var(--ok,0%) 100%)}
+.donut:after{content:"";position:absolute;inset:24px;background:#fff;border-radius:50%}
+.donut-center{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;z-index:2;font-weight:800;color:#3546b8}
+.donut-center b{font-size:24px}.donut-center span{font-size:11px;color:#7a8496}
+.note{font-size:12px;color:#7a8496;line-height:1.45}
+ .duration{display:inline-block;margin-top:7px;padding:4px 8px;border-radius:999px;background:#effcf5;color:#14804f;font-size:11px;font-weight:800}
+.filterbar{display:flex;gap:8px;background:rgba(255,255,255,.72);padding:5px;border:1px solid #e2e6f0;border-radius:14px;margin-bottom:12px}
+.filter{flex:1;background:transparent;color:#677085;padding:9px 8px;font-size:13px}
+.filter.active{background:#fff;color:#3546b8;box-shadow:0 4px 12px rgba(53,70,184,.10)}
+
+
+.heatmap-card{overflow:hidden}
+.heatmap-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px}
+.heatmap-title{font-size:14px;font-weight:800}
+.heatmap-period{font-size:12px;color:#7a8496}
+.heatmap-wrap{overflow-x:auto;padding-bottom:4px;contain:content}
+.heatmap-grid{min-width:330px}
+.heatmap-weekdays{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-bottom:6px}
+.heatmap-weekday{text-align:center;font-size:10px;color:#8a93a4;font-weight:800}
+.heatmap-cells{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+.heat-cell{
+  aspect-ratio:1/1;border-radius:6px;min-height:28px;position:relative;
+  border:1px solid rgba(0,0,0,.04);cursor:default;
+}
+.heat-cell:hover{transform:scale(1.04);box-shadow:0 3px 8px rgba(50,70,110,.10);z-index:2}
+.heat-empty{background:#f1f3f7}
+.heat-pending{background:#e9e7ff}
+.heat-green-1{background:#d9f7e5}
+.heat-green-2{background:#a7e9be}
+.heat-green-3{background:#63cf8a}
+.heat-green-4{background:#2eaa61}
+.heat-yellow{background:#fde68a}
+.heat-orange{background:#fb923c}
+.heat-red-1{background:#f87171}
+.heat-red-2{background:#dc2626}
+.heat-red-3{background:#991b1b}
+.heat-today{outline:2px solid #4d8dff;outline-offset:2px}
+.heat-label{
+  position:absolute;left:4px;top:3px;font-size:9px;font-weight:800;
+  color:rgba(20,30,45,.68);line-height:1
+}
+.heat-dark .heat-label{color:rgba(255,255,255,.9)}
+.heatmap-legend{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:12px;font-size:11px;color:#697386}
+.heat-legend-box{width:15px;height:15px;border-radius:4px;border:1px solid rgba(0,0,0,.04)}
+.heatmap-legend .spacer{margin-left:5px}
+
+
+.heat-cell{background:#f1f3f7!important}
+.sort-select{border:1px solid #dfe3ec;background:#f4f6f9;color:#4b5567;border-radius:12px;padding:8px 9px;font-size:12px;font-weight:800;max-width:138px;outline:none;box-shadow:none}.add-agenda-btn{flex:none}
+@media(max-width:520px){.agenda-head{align-items:flex-start}.agenda-tools{flex:1;justify-content:flex-end}.sort-select{max-width:128px}.add-agenda-btn{padding:8px 10px}.top{margin-bottom:12px}.card{padding:14px}}
+@media(max-width:390px){.sort-select{max-width:112px}.add-agenda-btn{font-size:12px;padding:8px}.agenda-tools{gap:5px}}
+
+
+@media(max-height:700px){.modal{padding-top:8px;padding-bottom:8px}.modal-card{max-height:calc(100dvh - 16px);padding:16px}}
+
+.kind-switch{display:grid;grid-template-columns:1fr 1fr;gap:6px;background:#f3f5fb;border:1px solid #e3e7f0;padding:4px;border-radius:13px;margin-bottom:12px}
+.kind-option{background:transparent;color:#687386;padding:9px 10px;font-size:13px;font-weight:850;border-radius:10px;box-shadow:none}
+.kind-option.active{background:#fff;color:#3446b8;box-shadow:0 3px 9px rgba(53,70,184,.08)}
+.kind-badge{display:inline-flex;align-items:center;gap:5px;padding:3px 7px;border-radius:999px;font-size:10px;font-weight:850;margin-bottom:7px}
+.kind-badge.agenda{background:#eef1ff;color:#3f4db8}
+.kind-badge.small-activity{background:#eafbf2;color:#147a4b}
+.group-title{display:flex;align-items:center;gap:7px;font-size:13px;font-weight:900;color:#4b5567;margin:16px 2px 8px}
+.group-count{font-size:11px;color:#8a93a4;font-weight:700}
+.type-summary{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.type-mini{background:#fafbfe;border:1px solid #e8ebf2;border-radius:13px;padding:12px}
+.type-mini-top{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.type-mini-name{font-size:13px;font-weight:900;color:#344054}
+.type-mini-kpi{font-size:18px;font-weight:900;color:#3546b8;margin-top:5px}
+.type-mini-meta{font-size:11px;color:#7a8496;margin-top:2px;line-height:1.35}
+.chart-typebar{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px;margin:0 0 10px;scrollbar-width:none}
+.chart-typebar::-webkit-scrollbar{display:none}
+.type-filter{flex:0 0 auto;background:#f4f6fb;color:#657085;border:1px solid #e2e6ef;padding:8px 11px;border-radius:999px;font-size:12px;font-weight:850}
+.type-filter.active{background:#eef1ff;color:#3949ab;border-color:#cfd6ff}
+.sort-select{min-width:0}
+@media(max-width:520px){.agenda-head{flex-wrap:wrap}.agenda-tools{width:100%;justify-content:flex-end}.type-summary{grid-template-columns:1fr}.group-title{margin-top:13px}}
+
+</style>
+</head>
+<body>
+<main>
+  <div class="top">
+    <div><h1>⏱ Punctuality</h1><div class="sub">Catat apakah kamu tepat waktu.</div></div>
+    <div class="top-actions">
+      <button class="secondary icon-btn" aria-label="Pengaturan" onclick="showSettings()">⚙️</button>
+    </div>
+  </div>
+
+  <div class="tabbar">
+    <button id="tabHome" class="tab active" onclick="showPage('home')">Ringkasan</button>
+    <button id="tabChart" class="tab" onclick="showPage('chart')">📊 Grafik</button>
+  </div>
+
+  <section id="homePage" class="page active">
+    <div class="agenda-head">
+      <div class="section-title">Agenda</div>
+      <div class="agenda-tools">
+        <select id="agendaSort" class="sort-select" aria-label="Urutkan agenda" onchange="setAgendaSort(this.value)">
+          <option value="createdDesc">↕ Dibuat terbaru</option>
+          <option value="targetAsc">↕ Agenda terdekat</option>
+          <option value="targetDesc">↕ Agenda terbaru</option>
+          <option value="createdAsc">↕ Dibuat terlama</option>
+        </select>
+        <button class="add-agenda-btn" type="button" onclick="openAgendaModal()">＋ Buat agenda</button>
+      </div>
+    </div>
+    <div id="events"></div>
+  </section>
+
+  <div id="agendaModal" class="modal" onclick="if(event.target===this) closeAgendaModal()">
+    <div class="modal-card">
+      <div class="modal-head">
+        <div id="modalTitle" class="modal-title">＋ Agenda baru</div>
+        <button type="button" class="close-btn" aria-label="Tutup" onclick="closeAgendaModal()">×</button>
+      </div>
+      <form id="eventForm">
+        <div class="kind-switch" role="group" aria-label="Jenis catatan">
+          <button id="kindAgenda" class="kind-option active" type="button" onclick="setEntryKind('agenda')">🔵 Agenda</button>
+          <button id="kindSmall" class="kind-option" type="button" onclick="setEntryKind('small')">🟢 Aktivitas kecil</button>
+        </div>
+        <div>
+          <label id="nameLabel" for="name">Nama agenda</label>
+          <input id="name" placeholder="Contoh: Ke Perpus" required>
+        </div>
+        <div>
+          <label for="target">Target tanggal & waktu</label>
+          <input id="target" type="datetime-local" required>
+        </div>
+        <div>
+          <label for="location">Lokasi <span style="font-weight:600;color:#8a93a4">(opsional)</span></label>
+          <div class="loc-row">
+            <select id="location">
+              <option value="">— Tanpa lokasi —</option>
+            </select>
+            <button class="secondary loc-add" type="button" onclick="addLocation()">＋ Add</button>
+          </div>
+        </div>
+        <div>
+          <label id="descriptionLabel" for="description">Description <span style="font-weight:600;color:#8a93a4">(opsional)</span></label>
+          <textarea id="description" placeholder="Contoh: belajar TA, ketemu teman, rapat, dll."></textarea>
+        </div>
+        <button id="submitEntry" class="primary" type="submit" style="width:100%">Tambah agenda</button>
+      </form>
+    </div>
+  </div>
+
+  <section id="chartPage" class="page">
+    <div class="grid">
+      <div id="statTotal" class="card stat neutral"><b id="total">0</b><span id="totalLabel">Total catatan</span></div>
+      <div id="statPunctual" class="card stat"><b id="punctual">—</b><span>Ketepatan waktu</span></div>
+      <div id="statLateAvg" class="card stat"><b id="lateAvg">—</b><span>Rata-rata terlambat</span></div>
+      <div id="statWorst" class="card stat">
+        <b id="worst" class="big-delay">—</b>
+        <span>Keterlambatan terparah</span>
+        <small id="worstSub" class="big-delay-sub"></small>
+      </div>
+    </div>
+
+    <div class="filterbar">
+      <button id="filterDay" class="filter" onclick="setChartFilter('day')">Harian</button>
+      <button id="filterWeek" class="filter" onclick="setChartFilter('week')">Mingguan</button>
+      <button id="filterMonth" class="filter active" onclick="setChartFilter('month')">Bulanan</button>
+    </div>
+    <div class="chart-typebar" role="tablist" aria-label="Jenis data grafik">
+      <button id="typeAll" class="type-filter active" onclick="setChartTypeFilter('all')">Semua</button>
+      <button id="typeAgenda" class="type-filter" onclick="setChartTypeFilter('agenda')">🔵 Agenda</button>
+      <button id="typeSmall" class="type-filter" onclick="setChartTypeFilter('small')">🟢 Aktivitas kecil</button>
+    </div>
+    <div id="filterNote" class="note" style="margin:0 3px 12px">Menampilkan statistik bulan ini · semua jenis.</div>
+
+    <div class="card">
+      <div class="chart-title">Perbandingan jenis</div>
+      <div id="typeComparison" class="type-summary"></div>
+    </div>
+
+    <div class="card heatmap-card">
+      <div class="heatmap-head">
+        <div class="heatmap-title">📅 Pola ketepatan waktu</div>
+        <div id="heatmapPeriod" class="heatmap-period">Bulan ini</div>
+      </div>
+      <div class="heatmap-wrap">
+        <div id="heatmap"></div>
+      </div>
+      <div class="heatmap-legend">
+        <span>Tepat waktu</span>
+        <i class="heat-legend-box heat-green-2"></i>
+        <i class="heat-legend-box heat-green-4"></i>
+        <i class="heat-legend-box heat-yellow"></i>
+        <i class="heat-legend-box heat-orange"></i>
+        <i class="heat-legend-box heat-red-1"></i>
+        <i class="heat-legend-box heat-red-3"></i>
+        <span>→ makin terlambat</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="chart-title">Konsistensi ketepatan waktu</div>
+      <div id="donut" class="donut" style="--ok:0%">
+        <div class="donut-center"><b id="donutPct">—</b><span>tepat waktu</span></div>
+      </div>
+      <div class="legend">
+        <span><i class="dot green"></i> Tepat waktu / lebih awal</span>
+        <span><i class="dot red"></i> Terlambat</span>
+        <span><i class="dot yellow"></i> Belum check-in</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div id="delayChartTitle" class="chart-title">Keterlambatan per agenda</div>
+      <div id="delayChart"></div>
+      <div class="note">Hanya catatan yang sudah di-check-in dan datang/mulai terlambat.</div>
+    </div>
+
+    <div class="card">
+      <div class="chart-title">⏱ Waktu di tiap lokasi</div>
+      <div id="locationStats"></div>
+      <div class="note">Hanya catatan yang sudah <b>CHECK OUT</b>/<b>SELESAI</b> yang dihitung.</div>
+    </div>
+
+    <div class="card">
+      <div class="chart-title">Ringkasan angka</div>
+      <div class="grid">
+        <div class="stat"><b id="chartOnTime">0</b><span>Tepat waktu</span></div>
+        <div class="stat"><b id="chartLate">0</b><span>Terlambat</span></div>
+        <div class="stat"><b id="chartPending">0</b><span>Belum mulai</span></div>
+        <div class="stat"><b id="chartEarly">0</b><span>Lebih awal</span></div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<script>
+const KEY='punctuality_v1';
+const LOC_KEY='punctuality_locations_v1';
+let data=[];
+let locations=[];
+try{data=JSON.parse(localStorage.getItem(KEY)||'[]')}catch{data=[]}
+try{locations=JSON.parse(localStorage.getItem(LOC_KEY)||'[]')}catch{locations=[]}
+
+const expanded=new Set();
+let chartFilter='month';
+let chartTypeFilter='all';
+let agendaSort='createdDesc';
+let entryKind='agenda';
+let dataVersion=0;
+let chartCacheKey='';
+
+function normalizeData(list){
+  return (Array.isArray(list)?list:[]).map((x,i)=>{
+    const copy={...x};
+    copy.kind=copy.kind==='small'?'small':'agenda';
+    copy.createdAt=copy.createdAt||new Date(Number(copy.id)||Date.now()+i).toISOString();
+    copy.location=typeof copy.location==='string'?copy.location:'';
+    copy.description=typeof copy.description==='string'?copy.description:'';
+    return copy;
+  });
+}
+data=normalizeData(data);
+locations=Array.isArray(locations)?locations.filter(v=>typeof v==='string').map(v=>v.trim()).filter(Boolean):[];
+
+function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]))}
+function saveLocations(){localStorage.setItem(LOC_KEY,JSON.stringify(locations))}
+function invalidateCharts(){dataVersion++;chartCacheKey=''}
+function save(){
+  localStorage.setItem(KEY,JSON.stringify(data));
+  invalidateCharts();
+  render();
+}
+
+function syncLocations(){
+  const oldLocations=data.map(x=>x.location).filter(Boolean);
+  [...locations,...oldLocations].forEach(v=>{
+    const name=String(v).trim();
+    if(name&&!locations.some(x=>x.toLowerCase()===name.toLowerCase()))locations.push(name);
+  });
+  locations.sort((a,b)=>a.localeCompare(b,'id'));
+  saveLocations();
+}
+syncLocations();
+
+function fmtTime(s){return new Date(s).toLocaleString('id-ID',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'})}
+function mins(n){return Math.abs(Math.round(n))+' menit'}
+function hourText(n){
+  const m=Math.abs(Math.round(n));
+  if(m<60)return '';
+  const h=Math.floor(m/60),r=m%60;
+  return r===0?`(${h} jam)`:`(${h} jam ${r} menit)`;
+}
+function durationText(start,end){
+  const diff=Math.max(0,(new Date(end)-new Date(start))/60000);
+  const m=Math.round(diff),h=Math.floor(m/60),r=m%60;
+  return h?`${h} jam${r?` ${r} menit`:''}`:`${m} menit`;
+}
+function kindLabel(kind){return kind==='small'?'Aktivitas kecil':'Agenda'}
+function kindBadge(kind){
+  return kind==='small'
+    ? '<span class="kind-badge small-activity">🟢 Aktivitas kecil</span>'
+    : '<span class="kind-badge agenda">🔵 Agenda</span>';
+}
+function actionWord(kind){return kind==='small'?'Mulai':'Datang'}
+function pendingWord(kind){return kind==='small'?'Belum mulai':'Belum check-in'}
+function completeWord(kind){return kind==='small'?'Selesai':'Check-out'}
+
+function toggleEvent(id){
+  if(expanded.has(id))expanded.delete(id);else expanded.add(id);
+  render();
+}
+
+function renderLocationOptions(){
+  const select=document.getElementById('location');
+  if(!select)return;
+  const current=select.value;
+  select.innerHTML='<option value="">— Tanpa lokasi —</option>'+locations.map(v=>`<option value="${esc(v)}">${esc(v)}</option>`).join('');
+  if(current&&locations.includes(current))select.value=current;
+}
+function addLocation(){
+  const value=prompt('Nama lokasi baru:');
+  if(value===null)return;
+  const name=value.trim();
+  if(!name){alert('Nama lokasi tidak boleh kosong.');return}
+  const existing=locations.find(v=>v.toLowerCase()===name.toLowerCase());
+  if(existing){renderLocationOptions();document.getElementById('location').value=existing;return}
+  locations.push(name);
+  locations.sort((a,b)=>a.localeCompare(b,'id'));
+  saveLocations();
+  renderLocationOptions();
+  document.getElementById('location').value=name;
+}
+
+function setEntryKind(kind){
+  entryKind=kind==='small'?'small':'agenda';
+  document.getElementById('kindAgenda').classList.toggle('active',entryKind==='agenda');
+  document.getElementById('kindSmall').classList.toggle('active',entryKind==='small');
+  const isSmall=entryKind==='small';
+  document.getElementById('modalTitle').textContent=isSmall?'＋ Aktivitas kecil baru':'＋ Agenda baru';
+  document.getElementById('nameLabel').textContent=isSmall?'Nama aktivitas kecil':'Nama agenda';
+  document.getElementById('name').placeholder=isSmall?'Contoh: Bikin kopi':'Contoh: Ke Perpus';
+  document.getElementById('description').placeholder=isSmall?'Contoh: mulai belajar 30 menit, bereskan meja, dll.':'Contoh: belajar TA, ketemu teman, rapat, dll.';
+  document.getElementById('submitEntry').textContent=isSmall?'Tambah aktivitas kecil':'Tambah agenda';
+}
+
+function addEvent(e){
+  e.preventDefault();
+  const nameInput=document.getElementById('name');
+  const targetInput=document.getElementById('target');
+  const locationInput=document.getElementById('location');
+  const descriptionInput=document.getElementById('description');
+  const eventName=nameInput.value.trim(),targetValue=targetInput.value;
+  if(!eventName||!targetValue)return;
+  const targetDate=new Date(targetValue);
+  if(Number.isNaN(targetDate.getTime())){alert('Tanggal dan waktu tidak valid.');return}
+  const selectedLocation=locationInput.value;
+  if(selectedLocation&&!locations.includes(selectedLocation)){
+    locations.push(selectedLocation);locations.sort((a,b)=>a.localeCompare(b,'id'));saveLocations();
+  }
+  data.push({
+    id:Date.now()+Math.random(),
+    createdAt:new Date().toISOString(),
+    kind:entryKind,
+    name:eventName,
+    target:targetDate.toISOString(),
+    location:selectedLocation.trim(),
+    description:descriptionInput.value.trim(),
+    actual:null,
+    checkout:null
+  });
+  nameInput.value='';targetInput.value='';locationInput.value='';descriptionInput.value='';
+  save();
+}
+
+function checkIn(id){
+  const x=data.find(v=>v.id===id);if(!x)return;
+  x.actual=new Date().toISOString();x.checkout=null;save();
+}
+function checkOut(id){
+  const x=data.find(v=>v.id===id);if(!x||!x.actual||x.checkout)return;
+  x.checkout=new Date().toISOString();save();
+}
+function undo(id){
+  const x=data.find(v=>v.id===id);if(x){x.actual=null;x.checkout=null;save()}
+}
+function del(id){if(confirm('Hapus catatan ini?')){data=data.filter(x=>x.id!==id);expanded.delete(id);save()}}
+
+function statusInfo(x,now){
+  if(x.actual){
+    const d=(new Date(x.actual)-new Date(x.target))/60000;
+    const word=actionWord(x.kind);
+    if(d>0)return{d,status:'🔴 Telat '+mins(d),cls:'late'};
+    if(d<0)return{d,status:'🟢 '+word+' '+mins(d)+' lebih awal',cls:'ontime'};
+    return{d:0,status:'🟢 '+word+' tepat waktu',cls:'ontime'};
+  }
+  return{d:null,status:'🟡 '+pendingWord(x.kind),cls:'pending'};
+}
+function clearStatState(el){el.classList.remove('neutral','good','warn','orange','bad','severe')}
+function delayState(minutes){
+  const m=Math.abs(minutes);
+  if(m===0)return'good';if(m<=5)return'warn';if(m<=15)return'orange';if(m<=30)return'bad';return'severe';
+}
+function punctualityState(pct,hasCompleted){
+  if(!hasCompleted)return'neutral';if(pct>=80)return'good';if(pct>=60)return'warn';if(pct>=40)return'orange';return'bad';
+}
+
+function setAgendaSort(value){agendaSort=value||'createdDesc';render()}
+function sortedAgenda(list){
+  return [...list].sort((a,b)=>{
+    if(agendaSort==='targetDesc')return new Date(b.target)-new Date(a.target);
+    if(agendaSort==='createdAsc')return new Date(a.createdAt)-new Date(b.createdAt);
+    if(agendaSort==='createdDesc')return new Date(b.createdAt)-new Date(a.createdAt);
+    return new Date(a.target)-new Date(b.target);
+  });
+}
+function renderGroup(kind,items){
+  const now=new Date();
+  const sorted=sortedAgenda(items);
+  return `<div class="group-title">${kind==='small'?'🟢 Aktivitas kecil':'🔵 Agenda'} <span class="group-count">${sorted.length}</span></div>`+
+    `<div>${sorted.map(x=>renderCard(x,now)).join('')}</div>`;
+}
+function renderCard(x,now){
+  const info=statusInfo(x,now),a=x.actual?new Date(x.actual):null,co=x.checkout?new Date(x.checkout):null;
+  const isOpen=expanded.has(x.id);
+  const checkInLabel=x.kind==='small'?'MULAI':'CHECK IN';
+  const checkOutLabel=x.kind==='small'?'SELESAI':'CHECK OUT';
+  let action='';
+  if(!a){action=`<button class="primary small" onclick="event.stopPropagation();checkIn(${x.id})">${checkInLabel}</button>`}
+  else if(co){action=`<button class="secondary small" onclick="event.stopPropagation();undo(${x.id})">Reset</button>`}
+  else{action=`<button class="checkout small" onclick="event.stopPropagation();checkOut(${x.id})">${checkOutLabel}</button><button class="secondary small" onclick="event.stopPropagation();undo(${x.id})">Reset</button>`}
+  return `<div class="card event-card ${isOpen?'open':''}" onclick="toggleEvent(${x.id})">
+    <div class="event-summary">
+      <div class="event-summary-main">
+        <div class="event-title-row">
+          <div style="min-width:0;flex:1">
+            ${kindBadge(x.kind)}
+            <h3>${esc(x.name)}</h3>
+            <div class="meta">Target: ${fmtTime(x.target)}</div>
+            ${x.location?`<div class="location"><span class="location-icon">📍</span><span>${esc(x.location)}</span></div>`:''}
+            <div class="status ${info.cls}">${info.status}</div>
+          </div>
+          <div class="chevron">⌄</div>
+        </div>
+      </div>
+    </div>
+    <div class="event-details">
+      ${x.description?`<div class="detail-row"><span class="detail-label">Description:</span> ${esc(x.description)}</div>`:''}
+      <div class="detail-row"><span class="detail-label">Target:</span> ${fmtTime(x.target)}</div>
+      ${a?`<div class="detail-row"><span class="detail-label">${x.kind==='small'?'Mulai':'Check-in'}:</span> ${fmtTime(x.actual)}</div>`:`<div class="detail-row"><span class="detail-label">${x.kind==='small'?'Mulai':'Check-in'}:</span> Belum dilakukan</div>`}
+      ${co?`<div class="detail-row"><span class="detail-label">${x.kind==='small'?'Selesai':'Check-out'}:</span> ${fmtTime(x.checkout)}</div><div class="duration">⏱ Durasi ${durationText(x.actual,x.checkout)}</div>`:`<div class="detail-row"><span class="detail-label">${x.kind==='small'?'Selesai':'Check-out'}:</span> Belum dilakukan</div>`}
+      <div class="actions" style="margin-top:12px">${action}<button class="danger small" onclick="event.stopPropagation();del(${x.id})">Hapus</button></div>
+    </div>
+  </div>`;
+}
+
+function render(){
+  const sortEl=document.getElementById('agendaSort');if(sortEl)sortEl.value=agendaSort;
+  const events=document.getElementById('events');
+  const agendaItems=data.filter(x=>x.kind==='agenda');
+  const smallItems=data.filter(x=>x.kind==='small');
+  if(!data.length){
+    events.innerHTML='<div class="card empty">Belum ada catatan. Tambahkan agenda atau aktivitas kecil pertama kamu di atas.</div>';
+  }else if(agendaItems.length&&smallItems.length){
+    events.innerHTML=renderGroup('agenda',agendaItems)+renderGroup('small',smallItems);
+  }else{
+    events.innerHTML=renderGroup(agendaItems.length?'agenda':'small',agendaItems.length?agendaItems:smallItems);
+  }
+  if(document.getElementById('chartPage')?.classList.contains('active'))refreshCharts();
+}
+
+function startOfDay(d){return new Date(d.getFullYear(),d.getMonth(),d.getDate())}
+function startOfWeek(d){const x=startOfDay(d),day=x.getDay(),diff=(day+6)%7;x.setDate(x.getDate()-diff);return x}
+function startOfNextWeek(d){const x=startOfWeek(d);x.setDate(x.getDate()+7);return x}
+function startOfMonth(d){return new Date(d.getFullYear(),d.getMonth(),1)}
+function startOfNextMonth(d){return new Date(d.getFullYear(),d.getMonth()+1,1)}
+function typeFiltered(list){return chartTypeFilter==='all'?list:list.filter(x=>x.kind===chartTypeFilter)}
+function getPeriodBounds(){
+  const now=new Date();
+  if(chartFilter==='day'){const s=startOfDay(now),e=new Date(s);e.setDate(e.getDate()+1);return[s,e]}
+  if(chartFilter==='week')return[startOfWeek(now),startOfNextWeek(now)];
+  return[startOfMonth(now),startOfNextMonth(now)];
+}
+function getChartFilteredData(){
+  const [start,end]=getPeriodBounds();
+  return typeFiltered(data).filter(x=>{const t=new Date(x.target);return t>=start&&t<end});
+}
+function setChartFilter(filter){chartFilter=filter;updateChartFilterUI();refreshCharts(true)}
+function setChartTypeFilter(kind){chartTypeFilter=kind;updateChartFilterUI();refreshCharts(true)}
+function updateChartFilterUI(){
+  ['day','week','month'].forEach(k=>document.getElementById('filter'+k[0].toUpperCase()+k.slice(1)).classList.toggle('active',chartFilter===k));
+  ['all','agenda','small'].forEach(k=>document.getElementById('type'+(k==='all'?'All':k==='agenda'?'Agenda':'Small')).classList.toggle('active',chartTypeFilter===k));
+  const period=chartFilter==='day'?'hari ini':chartFilter==='week'?'minggu ini':'bulan ini';
+  const type=chartTypeFilter==='all'?'semua jenis':kindLabel(chartTypeFilter).toLowerCase();
+  document.getElementById('filterNote').textContent=`Menampilkan statistik ${period} · ${type}.`;
+}
+
+function calculatePeriodStats(list){
+  let completed=0,punctual=0,late=0,pending=0,early=0,exact=0,totalLateMinutes=0,maxLate=0;
+  list.forEach(x=>{
+    if(!x.actual){pending++;return}
+    completed++;
+    const d=(new Date(x.actual)-new Date(x.target))/60000;
+    if(d>0){late++;totalLateMinutes+=d;if(d>maxLate)maxLate=d}
+    else if(d<0){early++;punctual++}
+    else{exact++;punctual++}
+  });
+  return{total:list.length,completed,punctual,late,pending,early,exact,totalLateMinutes,maxLate,avgLate:late?totalLateMinutes/late:0};
+}
+function refreshCharts(force=false){
+  const now=new Date();
+  const dateStamp=`${now.getFullYear()}-${now.getMonth()+1}-${now.getDate()}`;
+  const key=`${dataVersion}|${chartFilter}|${chartTypeFilter}|${dateStamp}`;
+  if(!force&&key===chartCacheKey)return;
+  chartCacheKey=key;
+  renderChartsForFilter();
+  renderHeatmap();
+  renderLocationStats();
+  renderTypeComparison();
+}
+function renderChartsForFilter(){
+  const filtered=getChartFilteredData(),s=calculatePeriodStats(filtered);
+  document.getElementById('total').textContent=s.total;
+  document.getElementById('totalLabel').textContent=chartTypeFilter==='all'?'Total catatan':`Total ${kindLabel(chartTypeFilter).toLowerCase()}`;
+  ['statPunctual','statLateAvg','statWorst'].forEach(id=>clearStatState(document.getElementById(id)));
+  const punctualPct=s.completed?Math.round(s.punctual/s.completed*100):null;
+  document.getElementById('punctual').textContent=punctualPct===null?'—':punctualPct+'%';
+  document.getElementById('statPunctual').classList.add(punctualityState(punctualPct,s.completed>0));
+  document.getElementById('lateAvg').textContent=s.late?mins(s.avgLate):'0 menit';
+  document.getElementById('statLateAvg').classList.add(s.late?delayState(s.avgLate):'good');
+  document.getElementById('worst').textContent=s.late?mins(s.maxLate):'0 menit';
+  document.getElementById('worstSub').textContent=s.late?hourText(s.maxLate):'';
+  document.getElementById('statWorst').classList.add(s.late?delayState(s.maxLate):'good');
+  const lateItems=filtered.filter(x=>x.actual).map(x=>({x,d:(new Date(x.actual)-new Date(x.target))/60000})).filter(v=>v.d>0);
+  renderCharts(s);
+  const donutPct=s.completed?Math.round(s.punctual/s.completed*100):0;
+  document.getElementById('donut').style.setProperty('--ok',donutPct+'%');
+  document.getElementById('donutPct').textContent=s.completed?donutPct+'%':'—';
+  document.getElementById('chartOnTime').textContent=s.exact;
+  document.getElementById('chartEarly').textContent=s.early;
+  document.getElementById('chartLate').textContent=s.late;
+  document.getElementById('chartPending').textContent=s.pending;
+  const labelType=chartTypeFilter==='small'?'aktivitas kecil':'agenda';
+  document.getElementById('delayChartTitle').textContent=`Keterlambatan per ${chartTypeFilter==='all'?'catatan':labelType}`;
+  const root=document.getElementById('delayChart');
+  if(!lateItems.length){root.innerHTML='<div class="chart-empty">Belum ada data keterlambatan untuk periode ini.</div>';return}
+  const top=lateItems.sort((a,b)=>b.d-a.d).slice(0,12),max=Math.max(...top.map(v=>v.d));
+  root.innerHTML=top.map(v=>`<div class="bar-row"><div class="bar-label" title="${esc(v.x.name)}">${esc(v.x.name)}</div><div class="bar-wrap"><div class="bar-fill" style="width:${Math.max(2,(v.d/max)*100)}%"></div></div><div class="bar-val">${Math.round(v.d)}m</div></div>`).join('');
+}
+function renderCharts(s){
+  // kept as a dedicated hook so chart drawing can be expanded without changing the KPI pass
+}
+
+function dateKey(d){const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,'0'),day=String(d.getDate()).padStart(2,'0');return `${y}-${m}-${day}`}
+function dateFromKey(key){const [y,m,d]=key.split('-').map(Number);return new Date(y,m-1,d)}
+function getDayStats(){
+  const map={};
+  getChartFilteredData().forEach(x=>{
+    const d=new Date(x.target),key=dateKey(d);
+    if(!map[key])map[key]={total:0,completed:0,lateMinutes:0,lateCount:0};
+    map[key].total++;
+    if(x.actual){
+      map[key].completed++;
+      const delay=(new Date(x.actual)-new Date(x.target))/60000;
+      if(delay>0){map[key].lateMinutes+=delay;map[key].lateCount++}
+    }
+  });
+  return map;
+}
+function heatVisual(stat){
+  if(!stat||!stat.total)return{bg:'#f1f3f7',text:'#667085',kind:'empty'};
+  if(stat.completed===0)return{bg:'#e9e7ff',text:'#5964a8',kind:'pending'};
+  if(stat.lateMinutes<=0){
+    const greens=['#d9f7e5','#a7e9be','#63cf8a','#2eaa61'];
+    const idx=Math.min(greens.length-1,Math.max(0,stat.completed-1));
+    return{bg:greens[idx],text:idx>=2?'#fff':'#245c3d',kind:'good'};
+  }
+  const severity=Math.min(1,Math.pow(stat.lateMinutes/30,.65));
+  const hue=Math.round(120*(1-severity)),lightness=Math.round(84-36*severity);
+  return{bg:`hsl(${hue},78%,${lightness}%)`,text:severity>.52?'#fff':'#5a3b00',kind:'late'};
+}
+function heatTooltip(key,stat){
+  const d=dateFromKey(key),dateText=d.toLocaleDateString('id-ID',{weekday:'short',day:'2-digit',month:'short',year:'numeric'});
+  if(!stat||!stat.total)return`${dateText}: Tidak ada catatan`;
+  const delayText=stat.lateMinutes>0?`Total terlambat ${Math.round(stat.lateMinutes)} menit (${stat.lateCount} catatan terlambat)`:'Semua yang sudah dicatat tepat waktu / lebih awal';
+  const pending=stat.total-stat.completed;
+  return`${dateText}: ${stat.total} catatan. ${delayText}${pending?` ${pending} belum mulai.`:''}`;
+}
+function renderHeatmap(){
+  const root=document.getElementById('heatmap'),periodText=document.getElementById('heatmapPeriod');
+  const map=getDayStats(),now=new Date();
+  let dates=[],title='Bulan ini';
+  if(chartFilter==='day'){dates=[startOfDay(now)];title='Hari ini'}
+  else if(chartFilter==='week'){const s=startOfWeek(now);for(let i=0;i<7;i++){const d=new Date(s);d.setDate(s.getDate()+i);dates.push(d)}title='Minggu ini'}
+  else{const s=startOfMonth(now),e=startOfNextMonth(now);for(let d=new Date(s);d<e;d.setDate(d.getDate()+1))dates.push(new Date(d));title=now.toLocaleDateString('id-ID',{month:'long',year:'numeric'})}
+  periodText.textContent=title;
+  if(chartFilter==='day'){
+    const key=dateKey(dates[0]),stat=map[key],visual=heatVisual(stat),d=dates[0];
+    root.innerHTML=`<div style="display:flex;justify-content:center;padding:8px 0 4px"><div class="heat-cell ${visual.kind} ${dateKey(now)===key?'heat-today':''}" title="${esc(heatTooltip(key,stat))}" style="width:96px;height:96px;aspect-ratio:auto;background:${visual.bg}!important;color:${visual.text}"><span class="heat-label" style="color:${visual.text}!important">${d.getDate()}</span></div></div><div class="note" style="text-align:center;margin-top:6px">${esc(d.toLocaleDateString('id-ID',{weekday:'long',day:'2-digit',month:'long'}))}</div>`;
+    return;
+  }
+  const cells=[];
+  if(chartFilter==='month'){const first=new Date(dates[0]),offset=(first.getDay()+6)%7;for(let i=0;i<offset;i++)cells.push('<div></div>')}
+  dates.forEach(d=>{const key=dateKey(d),stat=map[key],visual=heatVisual(stat),today=key===dateKey(now)?' heat-today':'';cells.push(`<div class="heat-cell ${visual.kind}${today}" title="${esc(heatTooltip(key,stat))}" style="background:${visual.bg}!important;color:${visual.text}"><span class="heat-label" style="color:${visual.text}!important">${d.getDate()}</span></div>`)})
+  root.innerHTML=`<div class="heatmap-grid"><div class="heatmap-weekdays"><div class="heatmap-weekday">Sen</div><div class="heatmap-weekday">Sel</div><div class="heatmap-weekday">Rab</div><div class="heatmap-weekday">Kam</div><div class="heatmap-weekday">Jum</div><div class="heatmap-weekday">Sab</div><div class="heatmap-weekday">Min</div></div><div class="heatmap-cells">${cells.join('')}</div></div>`;
+}
+
+function renderLocationStats(){
+  const root=document.getElementById('locationStats'),stats={};
+  getChartFilteredData().forEach(x=>{
+    if(!x.location||!x.actual||!x.checkout)return;
+    const minsSpent=Math.max(0,(new Date(x.checkout)-new Date(x.actual))/60000);
+    if(!stats[x.location])stats[x.location]={visits:0,total:0};
+    stats[x.location].visits++;stats[x.location].total+=minsSpent;
+  });
+  const entries=Object.entries(stats).sort((a,b)=>b[1].total-a[1].total);
+  if(!entries.length){root.innerHTML='<div class="chart-empty">Belum ada durasi lokasi yang tercatat.<br><small>Gunakan CHECK OUT/SELESAI pada catatan yang punya lokasi.</small></div>';return}
+  root.innerHTML=entries.map(([name,s])=>{const total=Math.round(s.total),h=Math.floor(total/60),m=total%60,totalText=h?`${h} jam${m?` ${m} menit`:''}`:`${m} menit`,avg=Math.round(s.total/s.visits),ah=Math.floor(avg/60),am=avg%60,avgText=ah?`${ah}j ${am}m`:`${am}m`;return`<div class="location-stat"><div><div class="location-stat-name">📍 ${esc(name)}</div><div class="location-stat-meta">${s.visits} kunjungan · rata-rata ${avgText}/kunjungan</div></div><div class="location-stat-time">${totalText}<small>total tercatat</small></div></div>`}).join('');
+}
+
+function renderTypeComparison(){
+  const root=document.getElementById('typeComparison');
+  if(chartTypeFilter!=='all'){
+    root.innerHTML='<div class="note">Pilih “Semua” pada filter jenis untuk melihat perbandingan Agenda dan Aktivitas kecil.</div>';return;
+  }
+  const [start,end]=getPeriodBounds();
+  const base=data.filter(x=>{const t=new Date(x.target);return t>=start&&t<end});
+  const cards=[['agenda','🔵 Agenda'],['small','🟢 Aktivitas kecil']].map(([kind,label])=>{
+    const s=calculatePeriodStats(base.filter(x=>x.kind===kind));
+    const pct=s.completed?Math.round(s.punctual/s.completed*100):null;
+    return `<div class="type-mini"><div class="type-mini-top"><div class="type-mini-name">${label}</div><div class="group-count">${s.total} catatan</div></div><div class="type-mini-kpi">${pct===null?'—':pct+'%'}</div><div class="type-mini-meta">ketepatan waktu · ${s.late} terlambat · ${s.pending} belum mulai</div></div>`;
+  });
+  root.innerHTML=cards.join('');
+}
+
+function showPage(page){
+  const chartActive=page==='chart';
+  document.getElementById('homePage').classList.toggle('active',!chartActive);
+  document.getElementById('chartPage').classList.toggle('active',chartActive);
+  document.getElementById('tabHome').classList.toggle('active',!chartActive);
+  document.getElementById('tabChart').classList.toggle('active',chartActive);
+  if(chartActive)refreshCharts(true);
+}
+
+function showSettings(){
+  const choice=prompt('Ketik EXPORT untuk backup data, IMPORT untuk memasukkan backup, atau CLEAR untuk menghapus semua data.');
+  if(!choice)return;
+  if(choice.toUpperCase()==='EXPORT'){
+    const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'}),a=document.createElement('a');
+    a.href=URL.createObjectURL(blob);a.download='punctuality-backup.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),500);
+  }else if(choice.toUpperCase()==='IMPORT'){
+    const inp=document.createElement('input');inp.type='file';inp.accept='.json';
+    inp.onchange=async()=>{
+      try{
+        const imported=normalizeData(JSON.parse(await inp.files[0].text()));
+        data=imported;syncLocations();localStorage.setItem(KEY,JSON.stringify(data));invalidateCharts();render();updateChartFilterUI();alert('Backup berhasil diimpor.');
+      }catch{alert('File backup tidak valid.')}
+    };
+    inp.click();
+  }else if(choice.toUpperCase()==='CLEAR'&&confirm('Hapus SEMUA data?')){data=[];save()}
+}
+
+function openAgendaModal(){
+  setEntryKind('agenda');
+  const modal=document.getElementById('agendaModal');
+  modal.classList.add('open');
+  document.body.style.overflow='hidden';
+  setTimeout(()=>document.getElementById('name').focus(),60);
+}
+function closeAgendaModal(){
+  document.getElementById('agendaModal').classList.remove('open');
+  document.body.style.overflow='';
+  setEntryKind('agenda');
+}
+
+document.getElementById('eventForm').addEventListener('submit',e=>{addEvent(e);setTimeout(closeAgendaModal,0)});
+renderLocationOptions();
+setEntryKind('agenda');
+updateChartFilterUI();
+render();
+</script>
+</body>
+</html>
