@@ -1,0 +1,779 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#5865F2">
+<title>Punctuality</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:system-ui,-apple-system,Segoe UI,sans-serif;background:linear-gradient(135deg,#f5f3ff 0%,#eef8ff 48%,#f7fff7 100%);color:#172033;min-height:100vh}
+main{max-width:680px;margin:auto;padding:20px 16px 40px}
+.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+h1{font-size:25px;margin:0}.sub{color:#737b8c;font-size:13px;margin-top:3px}
+button{border:0;border-radius:12px;padding:11px 14px;font-weight:800;cursor:pointer;transition:.15s transform,.15s opacity}
+button:active{transform:scale(.98);opacity:.9}
+.primary{background:linear-gradient(135deg,#6d5dfc,#4d8dff);color:white;box-shadow:0 6px 16px rgba(77,141,255,.22)}
+.secondary{background:#edf0ff;color:#3949ab}
+.checkout{background:#e9fff4;color:#138a55}
+.danger{background:#fff0f0;color:#c33131}
+.tabbar{display:flex;gap:8px;background:rgba(255,255,255,.72);padding:5px;border:1px solid #e2e6f0;border-radius:14px;margin-bottom:14px}
+.tab{flex:1;background:transparent;color:#677085;padding:10px}
+.tab.active{background:#fff;color:#3546b8;box-shadow:0 4px 12px rgba(53,70,184,.10)}
+.page{display:none}.page.active{display:block}
+.card{background:rgba(255,255,255,.94);border:1px solid #e7e8f0;border-radius:16px;padding:16px;margin-bottom:12px;box-shadow:0 8px 24px rgba(53,67,122,.06)}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.stat b{display:block;font-size:24px;color:#3546b8}.stat span{font-size:12px;color:#697386}
+.stat.neutral{border-top:4px solid #667eea}
+.stat.good{border-top:4px solid #22c55e;background:linear-gradient(180deg,#f5fff8,#fff)}
+.stat.good b{color:#15803d}
+.stat.warn{border-top:4px solid #f59e0b;background:linear-gradient(180deg,#fffbeb,#fff)}
+.stat.warn b{color:#b45309}
+.stat.orange{border-top:4px solid #f97316;background:linear-gradient(180deg,#fff7ed,#fff)}
+.stat.orange b{color:#c2410c}
+.stat.bad{border-top:4px solid #ef4444;background:linear-gradient(180deg,#fff5f5,#fff)}
+.stat.bad b{color:#c62828}
+.stat.severe{border-top:4px solid #b91c1c;background:linear-gradient(180deg,#fff0f0,#fff)}
+.stat.severe b{color:#991b1b}
+form{display:grid;gap:10px}
+label{font-size:12px;font-weight:800;color:#4b5563}
+input,textarea{width:100%;padding:11px;border:1px solid #ccd3e2;border-radius:10px;font-size:16px;background:#fbfcff;color:#172033;font-family:inherit}
+textarea{min-height:82px;resize:vertical;font-size:14px}
+input:focus,textarea:focus{outline:2px solid #b9c8ff;border-color:#7c90ff}
+.section-title{font-size:14px;font-weight:800;margin:18px 0 9px}
+.event{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
+.event h3{margin:0 0 4px;font-size:16px}
+.event-card{padding:0;overflow:hidden;cursor:pointer}
+.event-summary{display:flex;justify-content:space-between;gap:12px;align-items:center;padding:16px}
+.event-summary-main{min-width:0;flex:1}
+.event-title-row{display:flex;gap:8px;align-items:center}
+.chevron{width:30px;height:30px;border-radius:10px;background:#f0f2ff;color:#5363c7;display:flex;align-items:center;justify-content:center;font-weight:900;transition:transform .15s}
+.event-card.open .chevron{transform:rotate(180deg)}
+.event-details{display:none;border-top:1px solid #edf0f5;padding:14px 16px 16px;background:#fbfcff}
+.event-card.open .event-details{display:block}
+.detail-row{font-size:13px;color:#596577;margin:5px 0}
+.detail-label{font-weight:800;color:#344054}
+
+.meta{font-size:13px;color:#737b8c}
+.desc{font-size:13px;color:#5d6675;margin-top:8px;white-space:pre-wrap;line-height:1.45}
+.location{display:flex;gap:6px;align-items:flex-start;font-size:13px;color:#4f5d75;margin-top:7px}
+.loc-row{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center}
+select{width:100%;padding:11px;border:1px solid #ccd3e2;border-radius:10px;font-size:16px;background:#fbfcff;color:#172033;font-family:inherit}
+select:focus{outline:2px solid #b9c8ff;border-color:#7c90ff}
+.loc-add{white-space:nowrap;padding:10px 12px}
+.location-stat{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;padding:10px 0;border-bottom:1px solid #edf0f5}
+.location-stat:last-child{border-bottom:0}
+.location-stat-name{font-weight:800;font-size:14px}
+.location-stat-meta{font-size:12px;color:#737b8c;margin-top:3px}
+.location-stat-time{text-align:right;font-weight:800;color:#3546b8}
+.location-stat-time small{display:block;color:#7a8496;font-weight:600;font-size:11px;margin-top:2px}
+.location-icon{flex:none}
+.status{font-size:12px;font-weight:800;margin-top:7px}
+.late{color:#dc2626}.ontime{color:#15803d}.pending{color:#a16207}.checkedout{color:#0f7b4c}
+.actions{display:flex;gap:7px;flex-wrap:wrap;justify-content:flex-end}
+.small{padding:8px 10px;font-size:12px}
+.empty{text-align:center;color:#737373;padding:22px 5px}
+.big-delay{font-size:24px!important;line-height:1.05}
+.big-delay-sub{display:block;font-size:12px;color:#7a8496;font-weight:700;margin-top:5px}
+.chart-title{font-size:14px;font-weight:800;margin:0 0 12px}
+.bar-row{display:grid;grid-template-columns:88px 1fr 42px;gap:8px;align-items:center;margin:10px 0}
+.bar-label{font-size:12px;color:#616b7c;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bar-wrap{height:12px;background:#edf0f7;border-radius:999px;overflow:hidden}
+.bar-fill{height:100%;background:linear-gradient(90deg,#6d5dfc,#4d8dff);border-radius:999px;min-width:2px}
+.bar-val{text-align:right;font-size:12px;font-weight:800;color:#4c5668}
+.chart-empty{color:#7b8493;font-size:13px;text-align:center;padding:18px}
+.legend{display:flex;gap:12px;flex-wrap:wrap;font-size:12px;color:#667085;margin-top:12px}
+.legend span{display:inline-flex;align-items:center;gap:5px}.dot{width:9px;height:9px;border-radius:50%;display:inline-block}
+.green{background:#22c55e}.red{background:#ef4444}.yellow{background:#f59e0b}
+.donut{width:150px;height:150px;border-radius:50%;margin:8px auto 14px;position:relative;background:conic-gradient(#22c55e 0 var(--ok,0%),#ef4444 var(--ok,0%) 100%)}
+.donut:after{content:"";position:absolute;inset:24px;background:#fff;border-radius:50%}
+.donut-center{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;z-index:2;font-weight:800;color:#3546b8}
+.donut-center b{font-size:24px}.donut-center span{font-size:11px;color:#7a8496}
+.note{font-size:12px;color:#7a8496;line-height:1.45}
+ .duration{display:inline-block;margin-top:7px;padding:4px 8px;border-radius:999px;background:#effcf5;color:#14804f;font-size:11px;font-weight:800}
+.filterbar{display:flex;gap:8px;background:rgba(255,255,255,.72);padding:5px;border:1px solid #e2e6f0;border-radius:14px;margin-bottom:12px}
+.filter{flex:1;background:transparent;color:#677085;padding:9px 8px;font-size:13px}
+.filter.active{background:#fff;color:#3546b8;box-shadow:0 4px 12px rgba(53,70,184,.10)}
+
+
+.heatmap-card{overflow:hidden}
+.heatmap-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px}
+.heatmap-title{font-size:14px;font-weight:800}
+.heatmap-period{font-size:12px;color:#7a8496}
+.heatmap-wrap{overflow-x:auto;padding-bottom:4px}
+.heatmap-grid{min-width:330px}
+.heatmap-weekdays{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-bottom:6px}
+.heatmap-weekday{text-align:center;font-size:10px;color:#8a93a4;font-weight:800}
+.heatmap-cells{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+.heat-cell{
+  aspect-ratio:1/1;border-radius:6px;min-height:28px;position:relative;
+  border:1px solid rgba(0,0,0,.04);cursor:default;transition:transform .12s,box-shadow .12s;
+}
+.heat-cell:hover{transform:scale(1.06);box-shadow:0 4px 10px rgba(50,70,110,.12);z-index:2}
+.heat-empty{background:#f1f3f7}
+.heat-pending{background:#e9e7ff}
+.heat-green-1{background:#d9f7e5}
+.heat-green-2{background:#a7e9be}
+.heat-green-3{background:#63cf8a}
+.heat-green-4{background:#2eaa61}
+.heat-yellow{background:#fde68a}
+.heat-orange{background:#fb923c}
+.heat-red-1{background:#f87171}
+.heat-red-2{background:#dc2626}
+.heat-red-3{background:#991b1b}
+.heat-today{outline:2px solid #4d8dff;outline-offset:2px}
+.heat-label{
+  position:absolute;left:4px;top:3px;font-size:9px;font-weight:800;
+  color:rgba(20,30,45,.68);line-height:1
+}
+.heat-dark .heat-label{color:rgba(255,255,255,.9)}
+.heatmap-legend{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:12px;font-size:11px;color:#697386}
+.heat-legend-box{width:15px;height:15px;border-radius:4px;border:1px solid rgba(0,0,0,.04)}
+.heatmap-legend .spacer{margin-left:5px}
+
+
+.heat-cell{background:#f1f3f7!important}
+
+</style>
+</head>
+<body>
+<main>
+  <div class="top">
+    <div><h1>⏱ Punctuality</h1><div class="sub">Catat apakah kamu tepat waktu.</div></div>
+    <button class="secondary" onclick="showSettings()">⚙️</button>
+  </div>
+
+  <div class="tabbar">
+    <button id="tabHome" class="tab active" onclick="showPage('home')">Ringkasan</button>
+    <button id="tabChart" class="tab" onclick="showPage('chart')">📊 Grafik</button>
+  </div>
+
+  <section id="homePage" class="page active">
+    <div class="card">
+      <div class="section-title" style="margin-top:0">+ Agenda baru</div>
+      <form id="eventForm">
+        <div>
+          <label for="name">Nama acara</label>
+          <input id="name" placeholder="Contoh: Ke Perpus" required>
+        </div>
+        <div>
+          <label for="target">Target tanggal & waktu</label>
+          <input id="target" type="datetime-local" required>
+        </div>
+        <div>
+          <label for="location">Lokasi <span style="font-weight:600;color:#8a93a4">(opsional)</span></label>
+          <div class="loc-row">
+            <select id="location">
+              <option value="">— Tanpa lokasi —</option>
+            </select>
+            <button class="secondary loc-add" type="button" onclick="addLocation()">＋ Add</button>
+          </div>
+        </div>
+        <div>
+          <label for="description">Description <span style="font-weight:600;color:#8a93a4">(opsional)</span></label>
+          <textarea id="description" placeholder="Contoh: belajar TA, ketemu teman, rapat, dll."></textarea>
+        </div>
+        <button class="primary" type="submit">Tambah agenda</button>
+      </form>
+    </div>
+
+    <div class="section-title">Agenda</div>
+    <div id="events"></div>
+  </section>
+
+  <section id="chartPage" class="page">
+    <div class="grid">
+      <div id="statTotal" class="card stat neutral"><b id="total">0</b><span>Total agenda</span></div>
+      <div id="statPunctual" class="card stat"><b id="punctual">—</b><span>Ketepatan waktu</span></div>
+      <div id="statLateAvg" class="card stat"><b id="lateAvg">—</b><span>Rata-rata terlambat</span></div>
+      <div id="statWorst" class="card stat">
+        <b id="worst" class="big-delay">—</b>
+        <span>Keterlambatan terparah</span>
+        <small id="worstSub" class="big-delay-sub"></small>
+      </div>
+    </div>
+
+    <div class="filterbar">
+      <button id="filterDay" class="filter active" onclick="setChartFilter('day')">Harian</button>
+      <button id="filterWeek" class="filter" onclick="setChartFilter('week')">Mingguan</button>
+      <button id="filterMonth" class="filter" onclick="setChartFilter('month')">Bulanan</button>
+    </div>
+    <div id="filterNote" class="note" style="margin:0 3px 12px">Menampilkan statistik bulan ini.</div>
+
+    <div class="card heatmap-card">
+      <div class="heatmap-head">
+        <div class="heatmap-title">📅 Pola ketepatan waktu</div>
+        <div id="heatmapPeriod" class="heatmap-period">Bulan ini</div>
+      </div>
+      <div class="heatmap-wrap">
+        <div id="heatmap"></div>
+      </div>
+      <div class="heatmap-legend">
+        <span>Tepat waktu</span>
+        <i class="heat-legend-box heat-green-2"></i>
+        <i class="heat-legend-box heat-green-4"></i>
+        <i class="heat-legend-box heat-yellow"></i>
+        <i class="heat-legend-box heat-orange"></i>
+        <i class="heat-legend-box heat-red-1"></i>
+        <i class="heat-legend-box heat-red-3"></i>
+        <span>→ makin terlambat</span>
+      </div>
+    </div>
+
+
+    <div class="card">
+      <div class="chart-title">Konsistensi ketepatan waktu</div>
+      <div id="donut" class="donut" style="--ok:0%">
+        <div class="donut-center"><b id="donutPct">—</b><span>punctuality</span></div>
+      </div>
+      <div class="legend">
+        <span><i class="dot green"></i> Tepat waktu / lebih awal</span>
+        <span><i class="dot red"></i> Terlambat</span>
+        <span><i class="dot yellow"></i> Belum check-in</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="chart-title">Keterlambatan per agenda</div>
+      <div id="delayChart"></div>
+      <div class="note">Grafik hanya menampilkan agenda yang sudah di-check-in dan datang terlambat.</div>
+    </div>
+
+    <div class="card">
+      <div class="chart-title">⏱ Waktu di tiap lokasi</div>
+      <div id="locationStats"></div>
+      <div class="note">Hanya agenda yang sudah <b>CHECK OUT</b> yang dihitung. Jadi kamu bisa melihat berapa kali datang dan total waktu yang benar-benar tercatat di setiap lokasi.</div>
+    </div>
+
+    <div class="card">
+      <div class="chart-title">Ringkasan angka</div>
+      <div class="grid">
+        <div class="stat"><b id="chartOnTime">0</b><span>Tepat waktu</span></div>
+        <div class="stat"><b id="chartLate">0</b><span>Terlambat</span></div>
+        <div class="stat"><b id="chartPending">0</b><span>Belum check-in</span></div>
+        <div class="stat"><b id="chartEarly">0</b><span>Datang lebih awal</span></div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<script>
+const KEY='punctuality_v1';
+const LOC_KEY='punctuality_locations_v1';
+let data=JSON.parse(localStorage.getItem(KEY)||'[]');
+let locations=JSON.parse(localStorage.getItem(LOC_KEY)||'[]');
+const expanded=new Set();
+let chartFilter='month';
+
+function toggleEvent(id){
+  if(expanded.has(id)) expanded.delete(id);
+  else expanded.add(id);
+  render();
+}
+
+function saveLocations(){localStorage.setItem(LOC_KEY,JSON.stringify(locations))}
+function syncLocations(){
+  const oldLocations=data.map(x=>x.location).filter(Boolean);
+  [...locations,...oldLocations].forEach(v=>{
+    const name=String(v).trim();
+    if(name && !locations.includes(name)) locations.push(name);
+  });
+  locations.sort((a,b)=>a.localeCompare(b,'id'));
+  saveLocations();
+}
+syncLocations();
+
+function save(){localStorage.setItem(KEY,JSON.stringify(data));render()}
+function fmtTime(s){return new Date(s).toLocaleString('id-ID',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'})}
+function mins(n){return Math.abs(Math.round(n))+' menit'}
+function hourText(n){
+  const m=Math.abs(Math.round(n));
+  if(m<60)return '';
+  const h=Math.floor(m/60),r=m%60;
+  return r===0?`(${h} jam)`:`(${h} jam ${r} menit)`;
+}
+function durationText(start,end){
+  const diff=Math.max(0,(new Date(end)-new Date(start))/60000);
+  const m=Math.round(diff),h=Math.floor(m/60),r=m%60;
+  return h?`${h} jam${r?` ${r} menit`:''}`:`${m} menit`;
+}
+function renderLocationOptions(){
+  const select=document.getElementById('location');
+  const current=select.value;
+  select.innerHTML='<option value="">— Tanpa lokasi —</option>'+locations.map(v=>`<option value="${esc(v)}">${esc(v)}</option>`).join('');
+  if(current && locations.includes(current)) select.value=current;
+}
+function addLocation(){
+  const value=prompt('Nama lokasi baru:');
+  if(value===null)return;
+  const name=value.trim();
+  if(!name){alert('Nama lokasi tidak boleh kosong.');return}
+  const existing=locations.find(v=>v.toLowerCase()===name.toLowerCase());
+  if(existing){
+    renderLocationOptions();
+    document.getElementById('location').value=existing;
+    return;
+  }
+  locations.push(name);
+  locations.sort((a,b)=>a.localeCompare(b,'id'));
+  saveLocations();
+  renderLocationOptions();
+  document.getElementById('location').value=name;
+}
+function addEvent(e){
+  e.preventDefault();
+  const nameInput=document.getElementById('name');
+  const targetInput=document.getElementById('target');
+  const locationInput=document.getElementById('location');
+  const descriptionInput=document.getElementById('description');
+  const eventName=nameInput.value.trim(),targetValue=targetInput.value;
+  if(!eventName||!targetValue)return;
+  const targetDate=new Date(targetValue);
+  if(Number.isNaN(targetDate.getTime())){alert('Tanggal dan waktu tidak valid.');return}
+  const selectedLocation=locationInput.value;
+  if(selectedLocation && !locations.includes(selectedLocation)){
+    locations.push(selectedLocation);locations.sort((a,b)=>a.localeCompare(b,'id'));saveLocations();
+  }
+  data.push({
+    id:Date.now()+Math.random(),
+    name:eventName,
+    target:targetDate.toISOString(),
+    location:locationInput.value.trim(),
+    description:descriptionInput.value.trim(),
+    actual:null,
+    checkout:null
+  });
+  data.sort((a,b)=>new Date(b.target)-new Date(a.target));
+  nameInput.value='';targetInput.value='';locationInput.value='';descriptionInput.value='';
+  save();
+}
+function checkIn(id){
+  const x=data.find(v=>v.id===id);if(!x)return;
+  x.actual=new Date().toISOString();x.checkout=null;save();
+}
+function checkOut(id){
+  const x=data.find(v=>v.id===id);if(!x||!x.actual)return;
+  if(x.checkout){return}
+  x.checkout=new Date().toISOString();save();
+}
+function undo(id){
+  const x=data.find(v=>v.id===id);
+  if(x){x.actual=null;x.checkout=null;save()}
+}
+function del(id){if(confirm('Hapus agenda ini?')){data=data.filter(x=>x.id!==id);save()}}
+function statusInfo(x,now){
+  if(x.actual){
+    const d=(new Date(x.actual)-new Date(x.target))/60000;
+    if(d>0)return{d,status:'🔴 Telat '+mins(d),cls:'late'};
+    if(d<0)return{d,status:'🟢 Datang '+mins(d)+' lebih awal',cls:'ontime'};
+    return{d:0,status:'🟢 Tepat waktu',cls:'ontime'};
+  }
+  return{d:null,status:new Date(x.target)>now?'🟡 Menunggu check-in':'🟡 Belum check-in',cls:'pending'};
+}
+function clearStatState(el){
+  el.classList.remove('neutral','good','warn','orange','bad','severe');
+}
+function delayState(minutes){
+  const m=Math.abs(minutes);
+  if(m===0) return 'good';
+  if(m<=5) return 'warn';
+  if(m<=15) return 'orange';
+  if(m<=30) return 'bad';
+  return 'severe';
+}
+function punctualityState(pct, hasCompleted){
+  if(!hasCompleted) return 'neutral';
+  if(pct>=80) return 'good';
+  if(pct>=60) return 'warn';
+  if(pct>=40) return 'orange';
+  return 'bad';
+}
+function render(){
+  const now=new Date();
+  const agendaData=[...data].sort((a,b)=>new Date(b.target)-new Date(a.target));
+  const completed=data.filter(x=>x.actual);
+  const lateItems=data.map(x=>{
+    if(!x.actual)return null;
+    const d=(new Date(x.actual)-new Date(x.target))/60000;
+    return d>0?{x,d}:null;
+  }).filter(Boolean);
+  const earlyItems=data.filter(x=>x.actual&&(new Date(x.actual)-new Date(x.target))/60000<0);
+  const exactItems=data.filter(x=>x.actual&&(new Date(x.actual)-new Date(x.target))/60000===0);
+  const punctualCount=earlyItems.length+exactItems.length;
+  const delays=lateItems.map(v=>v.d);
+
+  document.getElementById('total').textContent=data.length;
+
+  const statPunctual=document.getElementById('statPunctual');
+  const statLateAvg=document.getElementById('statLateAvg');
+  const statWorst=document.getElementById('statWorst');
+  clearStatState(statPunctual);clearStatState(statLateAvg);clearStatState(statWorst);
+
+  const punctualPct=completed.length?Math.round(punctualCount/completed.length*100):null;
+  document.getElementById('punctual').textContent=punctualPct===null?'—':punctualPct+'%';
+  statPunctual.classList.add(punctualityState(punctualPct,completed.length>0));
+
+  if(delays.length){
+    const avgDelay=delays.reduce((a,b)=>a+b,0)/delays.length;
+    document.getElementById('lateAvg').textContent=mins(avgDelay);
+    statLateAvg.classList.add(delayState(avgDelay));
+  }else{
+    document.getElementById('lateAvg').textContent='0 menit';
+    statLateAvg.classList.add('good');
+  }
+
+  const worstEl=document.getElementById('worst'),worstSub=document.getElementById('worstSub');
+  if(delays.length){
+    const max=Math.max(...delays);
+    worstEl.textContent=mins(max);
+    worstSub.textContent=hourText(max);
+    statWorst.classList.add(delayState(max));
+  }else{
+    worstEl.textContent='0 menit';
+    worstSub.textContent='';
+    statWorst.classList.add('good');
+  }
+
+  const events=document.getElementById('events');
+  if(!agendaData.length){events.innerHTML='<div class="card empty">Belum ada agenda. Tambahkan agenda pertama kamu di atas.</div>'}
+  else{
+    events.innerHTML=agendaData.map(x=>{
+      const info=statusInfo(x,now),a=x.actual?new Date(x.actual):null,co=x.checkout?new Date(x.checkout):null;
+      const isOpen=expanded.has(x.id);
+      let action='';
+      if(!a){
+        action='<button class="primary small" onclick="event.stopPropagation();checkIn('+x.id+')">CHECK IN</button>';
+      }else{
+        action=co
+          ?'<button class="secondary small" onclick="event.stopPropagation();undo('+x.id+')">Reset check-in</button>'
+          :'<button class="checkout small" onclick="event.stopPropagation();checkOut('+x.id+')">CHECK OUT</button><button class="secondary small" onclick="event.stopPropagation();undo('+x.id+')">Reset</button>';
+      }
+
+      return `<div class="card event-card ${isOpen?'open':''}" onclick="toggleEvent(${x.id})">
+        <div class="event-summary">
+          <div class="event-summary-main">
+            <div class="event-title-row">
+              <div style="min-width:0;flex:1">
+                <h3>${esc(x.name)}</h3>
+                <div class="meta">Target: ${fmtTime(x.target)}</div>
+                ${x.location?`<div class="location"><span class="location-icon">📍</span><span>${esc(x.location)}</span></div>`:''}
+                <div class="status ${info.cls}">${info.status}</div>
+              </div>
+              <div class="chevron">⌄</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="event-details">
+          ${x.description?`<div class="detail-row"><span class="detail-label">Description:</span> ${esc(x.description)}</div>`:''}
+          <div class="detail-row"><span class="detail-label">Target:</span> ${fmtTime(x.target)}</div>
+          ${a?`<div class="detail-row"><span class="detail-label">Check-in:</span> ${fmtTime(x.actual)}</div>`:'<div class="detail-row"><span class="detail-label">Check-in:</span> Belum dilakukan</div>'}
+          ${co?`<div class="detail-row"><span class="detail-label">Check-out:</span> ${fmtTime(x.checkout)}</div><div class="duration">⏱ Durasi ${durationText(x.actual,x.checkout)}</div>`:'<div class="detail-row"><span class="detail-label">Check-out:</span> Belum dilakukan</div>'}
+          <div class="actions" style="margin-top:12px">
+            ${action}
+            <button class="danger small" onclick="event.stopPropagation();del(${x.id})">Hapus</button>
+          </div>
+        </div>
+      </div>`;
+    }).join('');
+  }
+  renderChartsForFilter();
+renderLocationStats();
+}
+function startOfDay(d){
+  return new Date(d.getFullYear(),d.getMonth(),d.getDate());
+}
+function startOfWeek(d){
+  const x=startOfDay(d);
+  const day=x.getDay();
+  const diff=(day+6)%7; // Monday = 0
+  x.setDate(x.getDate()-diff);
+  return x;
+}
+function startOfNextWeek(d){
+  const x=startOfWeek(d);
+  x.setDate(x.getDate()+7);
+  return x;
+}
+function startOfMonth(d){
+  return new Date(d.getFullYear(),d.getMonth(),1);
+}
+function startOfNextMonth(d){
+  return new Date(d.getFullYear(),d.getMonth()+1,1);
+}
+function getChartFilteredData(){
+  const now=new Date();
+  let start,end;
+  if(chartFilter==='day'){
+    start=startOfDay(now); end=new Date(start); end.setDate(end.getDate()+1);
+  }else if(chartFilter==='week'){
+    start=startOfWeek(now); end=startOfNextWeek(now);
+  }else{
+    start=startOfMonth(now); end=startOfNextMonth(now);
+  }
+  return data.filter(x=>{
+    const t=new Date(x.target);
+    return t>=start && t<end;
+  });
+}
+function setChartFilter(filter){
+  chartFilter=filter;
+  document.getElementById('filterDay').classList.toggle('active',filter==='day');
+  document.getElementById('filterWeek').classList.toggle('active',filter==='week');
+  document.getElementById('filterMonth').classList.toggle('active',filter==='month');
+  document.getElementById('filterNote').textContent=
+    filter==='day'?'Menampilkan statistik hari ini.':
+    filter==='week'?'Menampilkan statistik minggu ini.':
+    'Menampilkan statistik bulan ini.';
+  renderChartsForFilter();
+  renderHeatmap();
+}
+
+function dateKey(d){
+  const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,'0'),day=String(d.getDate()).padStart(2,'0');
+  return `${y}-${m}-${day}`;
+}
+function dateFromKey(key){
+  const [y,m,d]=key.split('-').map(Number);
+  return new Date(y,m-1,d);
+}
+function getDayStats(){
+  const map={};
+  data.forEach(x=>{
+    const d=new Date(x.target);
+    const key=dateKey(d);
+    if(!map[key])map[key]={total:0,completed:0,lateMinutes:0,lateCount:0};
+    map[key].total++;
+    if(x.actual){
+      map[key].completed++;
+      const delay=(new Date(x.actual)-new Date(x.target))/60000;
+      if(delay>0){
+        map[key].lateMinutes+=delay;
+        map[key].lateCount++;
+      }
+    }
+  });
+  return map;
+}
+function heatVisual(stat){
+  if(!stat || !stat.total){
+    return {bg:'#f1f3f7',text:'#667085',kind:'empty'};
+  }
+
+  // Before every agenda is checked in, keep the cell visibly neutral.
+  // Once at least one agenda is completed, show the actual performance
+  // based on the recorded lateness rather than hiding it behind "pending".
+  if(stat.completed===0){
+    return {bg:'#e9e7ff',text:'#5964a8',kind:'pending'};
+  }
+
+  const late=stat.lateMinutes;
+  if(late<=0){
+    // More green for days with more completed, on-time agendas.
+    const greens=['#d9f7e5','#a7e9be','#63cf8a','#2eaa61'];
+    const idx=Math.min(greens.length-1,Math.max(0,stat.completed-1));
+    return {bg:greens[idx],text:idx>=2?'#ffffff':'#245c3d',kind:'good'};
+  }
+
+  // Continuous scale: green -> yellow -> orange -> red.
+  // ~0 min late = green, 5 = yellow, 15 = orange, 30+ = red.
+  const severity=Math.min(1,Math.pow(late/30,0.65));
+  const hue=Math.round(120*(1-severity)); // 120 green -> 0 red
+  const lightness=Math.round(84-36*severity);
+  const bg=`hsl(${hue}, 78%, ${lightness}%)`;
+  const text=severity>0.52?'#ffffff':'#5a3b00';
+  return {bg,text,kind:'late'};
+}
+function heatTooltip(key,stat){
+  const d=dateFromKey(key);
+  const dateText=d.toLocaleDateString('id-ID',{weekday:'short',day:'2-digit',month:'short',year:'numeric'});
+  if(!stat || !stat.total) return `${dateText}: Tidak ada agenda`;
+  const delayText=stat.lateMinutes>0?`Total terlambat ${Math.round(stat.lateMinutes)} menit (${stat.lateCount} agenda terlambat)`:
+    'Semua yang sudah check-in tepat waktu / lebih awal';
+  const pending=stat.total-stat.completed;
+  return `${dateText}: ${stat.total} agenda. ${delayText}${pending?` ${pending} belum check-in.`:''}`;
+}
+function renderHeatmap(){
+  const root=document.getElementById('heatmap');
+  const periodText=document.getElementById('heatmapPeriod');
+  if(!root)return;
+  const map=getDayStats();
+  const now=new Date();
+  let dates=[];
+  let title='Bulan ini';
+  if(chartFilter==='day'){
+    dates=[startOfDay(now)];
+    title='Hari ini';
+  }else if(chartFilter==='week'){
+    const s=startOfWeek(now);
+    for(let i=0;i<7;i++){const d=new Date(s);d.setDate(s.getDate()+i);dates.push(d)}
+    title='Minggu ini';
+  }else{
+    const s=startOfMonth(now);
+    const e=startOfNextMonth(now);
+    for(let d=new Date(s);d<e;d.setDate(d.getDate()+1))dates.push(new Date(d));
+    title=now.toLocaleDateString('id-ID',{month:'long',year:'numeric'});
+  }
+  periodText.textContent=title;
+
+  if(chartFilter==='day'){
+    const key=dateKey(dates[0]),stat=map[key],visual=heatVisual(stat);
+    const d=dates[0];
+    const label=d.toLocaleDateString('id-ID',{weekday:'long',day:'2-digit',month:'long'});
+    const text=heatTooltip(key,stat);
+    root.innerHTML=`<div style="display:flex;justify-content:center;padding:8px 0 4px">
+      <div class="heat-cell ${visual.kind} ${dateKey(now)===key?'heat-today':''}" title="${esc(text)}"
+           style="width:96px;height:96px;aspect-ratio:auto;background:${visual.bg}!important;color:${visual.text}">
+        <span class="heat-label" style="color:${visual.text}!important">${d.getDate()}</span>
+      </div>
+    </div>
+    <div class="note" style="text-align:center;margin-top:6px">${esc(label)}</div>`;
+    return;
+  }
+
+  const cells=[];
+  if(chartFilter==='month'){
+    const first=new Date(dates[0]);
+    const offset=(first.getDay()+6)%7;
+    for(let i=0;i<offset;i++) cells.push('<div></div>');
+  }
+  dates.forEach(d=>{
+    const key=dateKey(d),stat=map[key],visual=heatVisual(stat);
+    const today=key===dateKey(now)?' heat-today':'';
+    const textColor=visual.text;
+    cells.push(`<div class="heat-cell ${visual.kind}${today}" title="${esc(heatTooltip(key,stat))}" style="background:${visual.bg}!important;color:${textColor}">
+      <span class="heat-label" style="color:${visual.text}!important">${d.getDate()}</span>
+    </div>`);
+  });
+  root.innerHTML=`<div class="heatmap-grid">
+    <div class="heatmap-weekdays">
+      <div class="heatmap-weekday">Sen</div><div class="heatmap-weekday">Sel</div><div class="heatmap-weekday">Rab</div>
+      <div class="heatmap-weekday">Kam</div><div class="heatmap-weekday">Jum</div><div class="heatmap-weekday">Sab</div><div class="heatmap-weekday">Min</div>
+    </div>
+    <div class="heatmap-cells">${cells.join('')}</div>
+  </div>`;
+}
+
+function renderLocationStats(){
+  const root=document.getElementById('locationStats');
+  const stats={};
+  data.forEach(x=>{
+    if(!x.location||!x.actual||!x.checkout)return;
+    const minsSpent=Math.max(0,(new Date(x.checkout)-new Date(x.actual))/60000);
+    if(!stats[x.location])stats[x.location]={visits:0,total:0};
+    stats[x.location].visits++;
+    stats[x.location].total+=minsSpent;
+  });
+  const entries=Object.entries(stats).sort((a,b)=>b[1].total-a[1].total);
+  if(!entries.length){
+    root.innerHTML='<div class="chart-empty">Belum ada durasi lokasi yang tercatat.<br><small>Gunakan CHECK OUT pada agenda yang punya lokasi.</small></div>';
+    return;
+  }
+  root.innerHTML=entries.map(([name,s])=>{
+    const total=Math.round(s.total),h=Math.floor(total/60),m=total%60;
+    const totalText=h?`${h} jam${m?` ${m} menit`:''}`:`${m} menit`;
+    const avg=Math.round(s.total/s.visits),ah=Math.floor(avg/60),am=avg%60;
+    const avgText=ah?`${ah}j ${am}m`:`${am}m`;
+    return `<div class="location-stat">
+      <div><div class="location-stat-name">📍 ${esc(name)}</div><div class="location-stat-meta">${s.visits} kunjungan · rata-rata ${avgText}/kunjungan</div></div>
+      <div class="location-stat-time">${totalText}<small>total tercatat</small></div>
+    </div>`;
+  }).join('');
+}
+function renderChartsForFilter(){
+  const filtered=getChartFilteredData();
+  const completed=filtered.filter(x=>x.actual);
+  const lateItems=filtered.map(x=>{
+    if(!x.actual)return null;
+    const d=(new Date(x.actual)-new Date(x.target))/60000;
+    return d>0?{x,d}:null;
+  }).filter(Boolean);
+  const earlyItems=filtered.filter(x=>x.actual&&(new Date(x.actual)-new Date(x.target))/60000<0);
+  const exactItems=filtered.filter(x=>x.actual&&(new Date(x.actual)-new Date(x.target))/60000===0);
+  const punctualCount=earlyItems.length+exactItems.length;
+  const delays=lateItems.map(v=>v.d);
+
+  document.getElementById('total').textContent=filtered.length;
+
+  const statPunctual=document.getElementById('statPunctual');
+  const statLateAvg=document.getElementById('statLateAvg');
+  const statWorst=document.getElementById('statWorst');
+  clearStatState(statPunctual);clearStatState(statLateAvg);clearStatState(statWorst);
+
+  const punctualPct=completed.length?Math.round(punctualCount/completed.length*100):null;
+  document.getElementById('punctual').textContent=punctualPct===null?'—':punctualPct+'%';
+  statPunctual.classList.add(punctualityState(punctualPct,completed.length>0));
+
+  if(delays.length){
+    const avgDelay=delays.reduce((a,b)=>a+b,0)/delays.length;
+    document.getElementById('lateAvg').textContent=mins(avgDelay);
+    statLateAvg.classList.add(delayState(avgDelay));
+  }else{
+    document.getElementById('lateAvg').textContent='0 menit';
+    statLateAvg.classList.add('good');
+  }
+
+  const worstEl=document.getElementById('worst'),worstSub=document.getElementById('worstSub');
+  if(delays.length){
+    const max=Math.max(...delays);
+    worstEl.textContent=mins(max);
+    worstSub.textContent=hourText(max);
+    statWorst.classList.add(delayState(max));
+  }else{
+    worstEl.textContent='0 menit';
+    worstSub.textContent='';
+    statWorst.classList.add('good');
+  }
+
+  renderCharts(completed.length,punctualCount,lateItems.length,filtered.length-completed.length,earlyItems.length,exactItems.length,lateItems);
+}
+
+function renderCharts(completedCount,punctualCount,lateCount,pendingCount,earlyCount,exactCount,lateItems){
+  const pct=completedCount?Math.round(punctualCount/completedCount*100):0;
+  document.getElementById('donut').style.setProperty('--ok',pct+'%');
+  document.getElementById('donutPct').textContent=completedCount?pct+'%':'—';
+  document.getElementById('chartOnTime').textContent=exactCount;
+  document.getElementById('chartEarly').textContent=earlyCount;
+  document.getElementById('chartLate').textContent=lateCount;
+  document.getElementById('chartPending').textContent=pendingCount;
+  const root=document.getElementById('delayChart');
+  if(!lateItems.length){
+    root.innerHTML='<div class="chart-empty">Belum ada data keterlambatan untuk periode ini.</div>';
+    return;
+  }
+  const top=[...lateItems].sort((a,b)=>b.d-a.d).slice(0,12),max=Math.max(...top.map(v=>v.d));
+  root.innerHTML=top.map(v=>`<div class="bar-row">
+    <div class="bar-label" title="${esc(v.x.name)}">${esc(v.x.name)}</div>
+    <div class="bar-wrap"><div class="bar-fill" style="width:${Math.max(2,(v.d/max)*100)}%"></div></div>
+    <div class="bar-val">${Math.round(v.d)}m</div>
+  </div>`).join('');
+}
+
+function showPage(page){
+  document.getElementById('homePage').classList.toggle('active',page==='home');
+  document.getElementById('chartPage').classList.toggle('active',page==='chart');
+  document.getElementById('tabHome').classList.toggle('active',page==='home');
+  document.getElementById('tabChart').classList.toggle('active',page==='chart');
+}
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]))}
+function showSettings(){
+  const choice=prompt('Ketik EXPORT untuk backup data, IMPORT untuk memasukkan backup, atau CLEAR untuk menghapus semua data.');
+  if(!choice)return;
+  if(choice.toUpperCase()==='EXPORT'){
+    const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'}),a=document.createElement('a');
+    a.href=URL.createObjectURL(blob);a.download='punctuality-backup.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),500);
+  }else if(choice.toUpperCase()==='IMPORT'){
+    const inp=document.createElement('input');inp.type='file';inp.accept='.json';
+    inp.onchange=async()=>{
+      try{const imported=JSON.parse(await inp.files[0].text());if(!Array.isArray(imported))throw new Error('invalid');data=imported;save();alert('Backup berhasil diimpor.')}
+      catch(e){alert('File backup tidak valid.')}
+    };inp.click();
+  }else if(choice.toUpperCase()==='CLEAR'&&confirm('Hapus SEMUA data?')){data=[];save()}
+}
+document.getElementById('eventForm').addEventListener('submit',addEvent);
+renderLocationOptions();
+render();
+renderHeatmap();
+</script>
+</body>
+</html>
